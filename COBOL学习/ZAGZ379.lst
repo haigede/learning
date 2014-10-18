@@ -1,0 +1,1109 @@
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1                Date 08/26/2012  Time 19:28:19   Page     1             
+0Invocation parameters:
+  ADDR(64)
+0Options in effect:
+  NOADATA                                                                                                                            
+    ADDR(64)                                                                                                                         
+    QUOTE                                                                                                                            
+    ARCH(POWERPC)                                                                                                                    
+    ARITH(COMPAT)                                                                                                                    
+    CALLINT(NODESCRIPTOR)                                                                                                            
+    CHAR(NATIVE)                                                                                                                     
+  NOCICS                                                                                                                             
+    COLLSEQ(BINARY)                                                                                                                  
+  NOCOMPILE(S)                                                                                                                       
+  NOCURRENCY                                                                                                                         
+  NODATEPROC                                                                                                                         
+  NODIAGTRUNC                                                                                                                        
+  NODYNAM                                                                                                                            
+  NOEXIT                                                                                                                             
+    FLAG(I,I)                                                                                                                        
+  NOFLAGSTD                                                                                                                          
+    FLOAT(NATIVE)                                                                                                                    
+    LIB                                                                                                                              
+    LINECOUNT(60)                                                                                                                    
+  NOLIST                                                                                                                             
+    LSTFILE(LOCALE)                                                                                                                  
+  NOMAP                                                                                                                              
+    MAXMEM(2048K)                                                                                                                    
+  NOMDECK                                                                                                                            
+    NCOLLSEQ(BINARY)                                                                                                                 
+    NSYMBOL(NATIONAL)                                                                                                                
+  NONUMBER                                                                                                                           
+  NOOPTIMIZE                                                                                                                         
+    PGMNAME(LONGUPPER)                                                                                                               
+  NOPROFILE                                                                                                                          
+    SEPOBJ                                                                                                                           
+    SEQUENCE                                                                                                                         
+    SIZE(8388608)                                                                                                                    
+  NOSOSI                                                                                                                             
+    SOURCE                                                                                                                           
+    SPACE(1)                                                                                                                         
+    SPILL(512)                                                                                                                       
+  NOSQL                                                                                                                              
+    SRCFORMAT(COMPAT)                                                                                                                
+  NOSSRANGE                                                                                                                          
+    TERM                                                                                                                             
+  NOTEST                                                                                                                             
+  NOTHREAD                                                                                                                           
+    TRUNC(STD)                                                                                                                       
+  NOVBREF                                                                                                                            
+  NOWSCLEAR                                                                                                                          
+    XREF(FULL)                                                                                                                       
+    YEARWINDOW(1900)                                                                                                                 
+    ZWB                                                                                                                              
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page     2             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000001                IDENTIFICATION          DIVISION.                                        |                                  
+   000002                PROGRAM-ID.             ZAGZ379.                                         |                                  
+   000003               * \PGMTYPE  PROCTYP ON                                            DELETE  |                                  
+   000004               *           TPMON   CICS                                          DELETE  |                                  
+   000005               *           DBMS    IDEA                                          DELETE  |                                  
+   000006               *           LANG    CB2                                           DELETE  |                                  
+   000007               *           PRJID   'CIMATR  '                                    DELETE  |                                  
+   000008               *           PGMID   'ZAGZ379 '                                    DELETE  |                                  
+   000009               * :*************************************************************  DELETE  |                                  
+   000010               * :**      ƒvƒƒOƒ‰ƒ€–¼Ì                                    ***  DELETE  |                                  
+   000011               * :**            ¶‹l‚ß•ÏŠ·@@@@@@@@@@              ***  DELETE  |                                  
+   000012               * :**      ‚s‚oƒ‚ƒjƒ^[                                      ***  DELETE  |                                  
+   000013               * :**            ‚b‚h‚b‚r                                    ***  DELETE  |                                  
+   000014               * :**      ‚c‚a‚l‚r                                          ***  DELETE  |                                  
+   000015               * :**                                                        ***  DELETE  |                                  
+   000016               * :**      ŠO•”ƒCƒ“ƒ^[ƒtƒF[ƒX                              ***  DELETE  |                                  
+   000017               * :**                                                        ***  DELETE  |                                  
+   000018               * :**      ƒvƒƒOƒ‰ƒ€                                        ***  DELETE  |                                  
+   000019               * :**            ‚l‚`‚h‚m                                    ***  DELETE  |                                  
+   000020               * :*************************************************************  DELETE  |                                  
+   000021               * *************************************************************           |                                  
+   000022               * **      ƒvƒƒOƒ‰ƒ€–¼Ì                                    ***           |                                  
+   000023               * **            ¶‹l‚ß•ÏŠ·@@@@@@@@@@              ***           |                                  
+   000024               * **      ‚s‚oƒ‚ƒjƒ^[                                      ***           |                                  
+   000025               * **            ‚b‚h‚b‚r                                    ***           |                                  
+   000026               * **      ‚c‚a‚l‚r                                          ***           |                                  
+   000027               * **                                                        ***           |                                  
+   000028               * **      ŠO•”ƒCƒ“ƒ^[ƒtƒF[ƒX                              ***           |                                  
+   000029               * **                                                        ***           |                                  
+   000030               * **      ƒvƒƒOƒ‰ƒ€                                        ***           |                                  
+   000031               * **            ‚l‚`‚h‚m                                    ***           |                                  
+   000032               * *************************************************************           |                                  
+   000033               ******************************************************************        |                                  
+   000034               *           IS                                                            |                                  
+   000035               *           m‘Î‰ž•”•i”Ô†F‚a‚g‚n‚m‚R‚V‚Xn                              |                                  
+   000036               *           IL2                                                           |                                  
+   000037               *           “ü—Í‚³‚ê‚½ƒf[ƒ^‚Ì•¶Žš—ñ‚Ìæ“ª–”‚Í“r’†‚É‚ ‚é‹ó”’              |                                  
+   000038               *           ‚ðíœ‚µA‘O‹l‚ß‚µ‚Äo—Í‚·‚éB                                |                                  
+   000039               *           IL2                                                           |                                  
+   000040               *           ‚n‚r‚O‚P‚P@F@ƒTƒuƒ‹[ƒ`ƒ“•W€^‚c‚a–¢Žg—p@                |                                  
+   000041               *           i‚u‚…‚’@‚O‚PD‚O‚Oj                                        |                                  
+   000042               *           IL5                                                           |                                  
+   000043               *           @@@@@ƒƒƒ@•ÏX“à—e—š—ðŠÇ—@„„„                    |                                  
+   000044               *           IL                                                            |                                  
+   000045               *           @@@@@@‡‚@@@@@HŽ–‡‚@@@@@@                    |                                  
+   000046               *           IL                                                            |                                  
+   000047               *           @@@@@@‚O@F@‚d‚a‚d‚m|‚O‚O‚T‚Q@@@                  |                                  
+   000048               *           IE                                                            |                                  
+   000049               ******************************************************************        |                                  
+   000050               * \ENVIR                                                          DELETE  |                                  
+   000051                ENVIRONMENT             DIVISION.                                        |                                  
+   000052               *                                                                         |                                  
+   000053               * \DATA                                                           DELETE  |                                  
+   000054                DATA                    DIVISION.                                        |                                  
+   000055               *                                                                         |                                  
+   000056               * \WORK                                                           DELETE  |                                  
+   000057                WORKING-STORAGE         SECTION.                                         |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page     3             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000058               ******************************************************************        |                                  
+   000059               *    ƒ[ƒN•Ï”ƒGƒŠƒA                                            *        |                                  
+   000060               ******************************************************************        |                                  
+   000061                01  WK-CNV-AREA.                                                         |                                  
+   000062                  03  WK-CNV-AREA-START          PIC X(14)                               |                                  
+   000063                      VALUE 'CNV-WORK-START'.                                            |                                  
+   000064                  03  WK-CNV-G                   PIC 9(02) VALUE 1.                      |                                  
+   000065                  03  WK-CNV-RESP                PIC 9(04) COMP VALUE ZERO.              |IMP                               
+   000066                  03  WK-CNV-AREA-END            PIC X(12)                               |                                  
+   000067                      VALUE 'CNV-WORK-END'.                                              |                                  
+   000068               ******************************************************************        |                                  
+   000069               *    ƒRƒ“ƒXƒ^ƒ“ƒg  ƒGƒŠƒA                                        *        |                                  
+   000070               ******************************************************************        |                                  
+   000071                01  CONS-AREA.                                                           |                                  
+   000072                    COPY CBLCNS01.                                                       |                                  
+   000073C              ******************************************************************        |                                  
+   000074C              *    ALICE TO COBOL@•ÏŠ·‚ÌŒÅ—Lî•ñ                                       |                                  
+   000075C              ******************************************************************        |                                  
+   000076C              *    ‰ü’ù—š—ð                                                             |                                  
+   000077C              *    ”NŒŽ“ú        ‹æ•ª  Š‘®          ’S“–     “à—e                      |                                  
+   000078C              *    ------------ ----  ------------- -------  -------------------        |                                  
+   000079C              *    20120511      V‹K   GUT                   V‹Kì¬                  |                                  
+   000080C              ******************************************************************        |                                  
+   000081C              *    DATACOM‚Ì–ß‚èƒR[ƒh                                                  |                                  
+   000082C                   05  WK-CNS-COM.                                                      |                                  
+   000083C              *    ³íI—¹                                                             |                                  
+   000084C                       10  WK-CNS-COM-NORMAL    PIC X(02) VALUE '00'.                   |                                  
+   000085C              *    ƒe[ƒuƒ‹ID‚ª–³Œø                                                     |                                  
+   000086C                       10  WK-CNS-COM-INVTN     PIC X(02) VALUE '02'.                   |                                  
+   000087C              *    ƒL[ID–³Œø                                                           |                                  
+   000088C                       10  WK-CNS-COM-INVKN     PIC X(02) VALUE '03'.                   |                                  
+   000089C              *    ƒe[ƒuƒ‹OPEN‚³‚ê‚Ä‚¢‚È‚¢                                             |                                  
+   000090C                       10  WK-CNS-COM-NTOPN     PIC X(02) VALUE '05'.                   |                                  
+   000091C              *    ƒe[ƒuƒ‹XV–Ú“I‚ÅOPEN‚³‚ê‚Ä‚¢‚È‚¢                                   |                                  
+   000092C                       10  WK-CNS-COM-NTOPNU    PIC X(02) VALUE '06'.                   |                                  
+   000093C              *    ƒf[ƒ^ƒGƒŠƒA‚ªˆê”t                                                   |                                  
+   000094C                       10  WK-CNS-COM-DRAFL     PIC X(02) VALUE '07'.                   |                                  
+   000095C              *    ƒCƒ“ƒfƒbƒNƒXƒGƒŠƒA‚ªˆê”t                                             |                                  
+   000096C                       10  WK-CNS-COM-IDXFL     PIC X(02) VALUE '08'.                   |                                  
+   000097C              *    ‘O’ñ‚Æ‚È‚éƒRƒ}ƒ“ƒh—v‹‚ª‚È‚¢                                         |                                  
+   000098C                       10  WK-CNS-COM-NTPREQ    PIC X(02) VALUE '09'.                   |                                  
+   000099C              *    ƒ}ƒXƒ^[ƒL[‹–‚³‚ê‚È‚¢                                               |                                  
+   000100C                       10  WK-CNS-COM-DMKEY     PIC X(02) VALUE '10'.                   |                                  
+   000101C              *    ƒ}ƒXƒ^[ƒL[•ÏX                                                     |                                  
+   000102C                       10  WK-CNS-COM-MMKEY     PIC X(02) VALUE '11'.                   |                                  
+   000103C              *    “Á•ÊíœƒŒƒR[ƒh                                                     |                                  
+   000104C                       10  WK-CNS-COM-SDREC     PIC X(02) VALUE '12'.                   |                                  
+   000105C              *    ƒŒƒR[ƒhŒ©‚Â‚©‚ç‚È‚¢                                                 |                                  
+   000106C                       10  WK-CNS-COM-NTFND     PIC X(02) VALUE '14'.                   |                                  
+   000107C              *    ”r‘¼§ŒäƒfƒbƒhƒƒbƒN                                                 |                                  
+   000108C                       10  WK-CNS-COM-EXLOG     PIC X(02) VALUE '16'.                   |                                  
+   000109C              *    ”r‘¼§Œäd•¡                                                         |                                  
+   000110C                       10  WK-CNS-COM-EXDUP     PIC X(02) VALUE '18'.                   |                                  
+   000111C              *    ƒe[ƒuƒ‹I‚í‚è                                                       |                                  
+   000112C                       10  WK-CNS-COM-EOFGET    PIC X(02) VALUE '19'.                   |                                  
+   000113C              *    ƒGƒŒƒƒ“ƒg–¼Œ©‚Â‚©‚ç‚È‚¢                                             |                                  
+   000114C                       10  WK-CNS-COM-NTFNDE    PIC X(02) VALUE '22'.                   |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page     4             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000115C              *    ƒGƒŒƒƒ“ƒgƒZƒLƒ…ƒŠƒeƒBˆá”½                                           |                                  
+   000116C                       10  WK-CNS-COM-ESCVIO    PIC X(02) VALUE '23'.                   |                                  
+   000117C              *    DBID–³Œø                                                             |                                  
+   000118C                       10  WK-CNS-COM-INVDBID   PIC X(02) VALUE '25'.                   |                                  
+   000119C              *    ƒƒOƒGƒŠƒA‚ÉƒŒƒR[ƒh‚È‚µ                                             |                                  
+   000120C                       10  WK-CNS-COM-EOFLOG    PIC X(02) VALUE '29'.                   |                                  
+   000121C              *    CBSƒGƒ‰[                                                            |                                  
+   000122C                       10  WK-CNS-COM-DBSERR    PIC X(02) VALUE '91'.                   |                                  
+   000123C              *    ƒZƒbƒg‘I‘ðŠ„ž‚Ý                                                     |                                  
+   000124C                       10  WK-CNS-COM-SITRPT    PIC X(02) VALUE '92'.                   |                                  
+   000125C              *    ƒZƒbƒg”ÍˆÍ’´‚¦                                                       |                                  
+   000126C                       10  WK-CNS-COM-BEGSET    PIC X(02) VALUE '93'.                   |                                  
+   000127C              *    ‚c‚a‚Q‚Ì–ß‚èƒR[ƒh                                                   |                                  
+   000128C                   05  WK-CNS-DB2.                                                      |                                  
+   000129C              *    ³íI—¹                                                             |                                  
+   000130C                       10  WK-CNS-DB2-NORMAL    PIC S9(05) COMP-5 VALUE 0.              |                                  
+   000131C              *    d•¡                                                                 |                                  
+   000132C                       10  WK-CNS-DB2-DMKEY     PIC S9(05) COMP-5                       |                                  
+   000133C                                                          VALUE  -803.                  |                                  
+   000134C              *    ƒf[ƒ^‚È‚µ                                                           |                                  
+   000135C                       10  WK-CNS-DB2-NOTFOUND  PIC S9(05) COMP-5 VALUE 100.            |                                  
+   000136C              *    ƒtƒ@ƒCƒ‹‚Ì–ß‚èƒR[ƒh                                                 |                                  
+   000137C                   05  WK-CNS-FILE.                                                     |                                  
+   000138C              *    ƒtƒ@ƒCƒ‹³íI—¹                                                     |                                  
+   000139C                       10  WK-CNS-FILE-NORMAL   PIC X(02) VALUE '00'.                   |                                  
+   000140C              *    ƒtƒ@ƒCƒ‹ƒf[ƒ^‚È‚µ                                                   |                                  
+   000141C                       10  WK-CNS-FILE-NOTFOUND PIC X(02) VALUE '10'.                   |                                  
+   000142C                   05  WK-CNS-FLG.                                                      |                                  
+   000143C              *    ƒtƒ‰ƒOƒIƒ“                                                           |                                  
+   000144C                       10  WK-CNS-FLG-ON        PIC 9(01) VALUE 1.                      |                                  
+   000145C              *    ƒtƒ‰ƒOƒIƒt                                                           |                                  
+   000146C                       10  WK-CNS-FLG-OFF       PIC 9(01) VALUE 0.                      |                                  
+   000147C                   05  WK-CNS-CICS.                                                     |                                  
+   000148C              *    CICS³íI—¹                                                         |                                  
+   000149C                       10  WK-CNS-CICS-NORMAL       PIC 9(02) VALUE 0.                  |                                  
+   000150C              *    CICS‚ÌNOTFNDˆÙí                                                     |                                  
+   000151C                       10  WK-CNS-CICS-NOTFND       PIC 9(02) VALUE 13.                 |                                  
+   000152C              *    CICS‚ÌINVREQˆÙí                                                     |                                  
+   000153C                       10  WK-CNS-CICS-INVREQ       PIC 9(02) VALUE 16.                 |                                  
+   000154C              *    CICS‚ÌIOERRˆÙí                                                      |                                  
+   000155C                       10  WK-CNS-CICS-IOERR        PIC 9(02) VALUE 17.                 |                                  
+   000156C              *    CICS‚ÌLENGERRˆÙí                                                    |                                  
+   000157C                       10  WK-CNS-CICS-LENGERR      PIC 9(02) VALUE 22.                 |                                  
+   000158C              *    CICS‚ÌITEMˆÙí                                                       |                                  
+   000159C                       10  WK-CNS-CICS-ITEMERR      PIC 9(02) VALUE 26.                 |                                  
+   000160C              *    CICS‚ÌENDDATAˆÙí                                                    |                                  
+   000161C                       10  WK-CNS-CICS-ENDDATA      PIC 9(02) VALUE 29.                 |                                  
+   000162C              *    CICS‚ÌINVTSREQˆÙí                                                   |                                  
+   000163C                       10  WK-CNS-CICS-INVTSREQ     PIC 9(02) VALUE 30.                 |                                  
+   000164C              *    CICS‚ÌMAPˆÙí                                                        |                                  
+   000165C                       10  WK-CNS-CICS-MAPFAIL      PIC 9(02) VALUE 36.                 |                                  
+   000166C              *    CICS‚ÌQIDERRˆÙí                                                     |                                  
+   000167C                       10  WK-CNS-CICS-QIDERR       PIC 9(02) VALUE 44.                 |                                  
+   000168C              *    CICS‚ÌSYSIDERRˆÙí                                                   |                                  
+   000169C                       10  WK-CNS-CICS-SYSIDERR     PIC 9(02) VALUE 53.                 |                                  
+   000170C              *    CICS‚ÌISCINVREQˆÙí                                                  |                                  
+   000171C                       10  WK-CNS-CICS-ISCINVREQ    PIC 9(02) VALUE 54.                 |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page     5             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000172C              *    CICS‚ÌENVDEFERRˆÙí                                                  |                                  
+   000173C                       10  WK-CNS-CICS-ENVDEFERR    PIC 9(02) VALUE 56.                 |                                  
+   000174C              *    CICS‚ÌNOTAUTHˆÙí                                                    |                                  
+   000175C                       10  WK-CNS-CICS-NOTAUTH      PIC 9(02) VALUE 70.                 |                                  
+   000176C              *    DB2‚Ì–ß‚èƒR[ƒh                                                      |                                  
+   000177C                   05 WK-CNV-DB2-RTN                PIC -----.                          |                                  
+   000178C                   05 WK-CNV-DB2-RETURN.                                                |                                  
+   000179C                       10 WK-CNV-SQLCODE            PIC S9(5) COMP-5.                   |                                  
+   000180C              *    ƒCƒ“ƒfƒbƒNƒX‚P                                                       |                                  
+   000181C                   05 WK-CNV-DB2-IDX                PIC 9(04) VALUE 0.                  |                                  
+   000182C                   05  DFHEIBLK.                                                        |                                  
+   000183C                       10  EIBTIME                 PIC S9(7)  COMP-3.                   |                                  
+   000184C                       10  EIBDATE                 PIC S9(7)  COMP-3.                   |                                  
+   000185C                       10  EIBTRNID                PIC  X(4).                           |                                  
+   000186C                       10  EIBTASKN                PIC S9(7)  COMP-3.                   |                                  
+   000187C                       10  EIBTRMID                PIC  X(4).                           |                                  
+   000188C                       10  EIBRSVD1                PIC S9(4)  COMP.                     |                                  
+   000189C                       10  EIBCPOSN                PIC S9(4)  COMP.                     |                                  
+   000190C                       10  EIBCALEN                PIC S9(4)  COMP.                     |                                  
+   000191C                       10  EIBAID                  PIC  X(1).                           |                                  
+   000192C                       10  EIBFN                   PIC  X(2).                           |                                  
+   000193C                       10  EIBRCODE                PIC  X(6).                           |                                  
+   000194C                       10  EIBDS                   PIC  X(8).                           |                                  
+   000195C                       10  EIBREQID                PIC  X(8).                           |                                  
+   000196C                       10  EIBRSRCE                PIC  X(8).                           |                                  
+   000197C                       10  EIBSYNC                 PIC  X(1).                           |                                  
+   000198C                       10  EIBFREE                 PIC  X(1).                           |                                  
+   000199C                       10  EIBRECV                 PIC  X(1).                           |                                  
+   000200C                       10  EIBSEND                 PIC  X(1).                           |                                  
+   000201C                       10  EIBATT                  PIC  X(1).                           |                                  
+   000202C                       10  EIBEOC                  PIC  X(1).                           |                                  
+   000203C                       10  EIBFMH                  PIC  X(1).                           |                                  
+   000204C                       10  EIBCOMPL                PIC  X(1).                           |                                  
+   000205C                       10  EIBSIG                  PIC  X(1).                           |                                  
+   000206C                       10  EIBCONF                 PIC  X(1).                           |                                  
+   000207C                       10  EIBERR                  PIC  X(1).                           |                                  
+   000208C                       10  EIBERRCD                PIC  X(4).                           |                                  
+   000209C                       10  EIBSYNRB                PIC  X(1).                           |                                  
+   000210C                       10  EIBNODAT                PIC  X(1).                           |                                  
+   000211C                       10  EIBRESP                 PIC S9(8)  COMP.                     |                                  
+   000212C                       10  EIBRESP2                PIC S9(8)  COMP.                     |                                  
+   000213C                       10  EIBRLDBK                PIC  X(1).                           |                                  
+   000214C              *    05  ASSIGN-AREA.                                                     |                                  
+   000215C              *        10  APPLID                  PIC  X(8).                           |                                  
+   000216               ******************************************************************        |                                  
+   000217               *                ƒ[ƒN  ƒGƒŠƒA                                  *        |                                  
+   000218               ******************************************************************        |                                  
+   000219               *                                                                         |                                  
+   000220                01  WORK-AREA.                                                           |                                  
+   000221                  03  WORK-START                 PIC X(08) VALUE 'WK-START'.             |                                  
+   000222                  03  WK-PGM-NO                  PIC X(08) VALUE 'ZAGZ379'.              |                                  
+   000223                  03  SW-ERR                     PIC X(01).                              |                                  
+   000224               *                                                                         |                                  
+   000225                  03  WK-IN-TBL.                                                         |                                  
+   000226                    05  WK-IN OCCURS 100         PIC X(01).                              |                                  
+   000227                  03  WK-OUT-TBL.                                                        |                                  
+   000228                    05  WK-OUT OCCURS 100        PIC X(01).                              |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page     6             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000229                  03  SW-FLG                     PIC X(01).                              |                                  
+   000230                  03  I                          PIC 9(03).                              |                                  
+   000231                  03  J                          PIC 9(03).                              |                                  
+   000232               *                                                                         |                                  
+   000233                  03  WORK-END                   PIC X(06) VALUE 'WK-END'.               |                                  
+   000234               *                                                                         |                                  
+   000235                01  YCA017.                                                              |                                  
+   000236               *          \COPY YCA017                                           DELETE  |                                  
+   000237                    COPY YCA017.                                                         |                                  
+   000238C                   02 YCA017E-ENT.                                                      |                                  
+   000239C                     03 QA-NO-PGM                   PIC X(08).                          |                                  
+   000240C                     03 QA-NM-MODU                  PIC X(08).                          |                                  
+   000241C                     03 QA-NM-ABEND                 PIC X(10).                          |                                  
+   000242C                     03 QA-SV-KEY008                PIC X(08).                          |                                  
+   000243C                     03 QA-FLD-PGMMSG               PIC X(69).                          |                                  
+   000244                01  AID-VALUES.                                                          |                                  
+   000245               *          \COPY DFHAID                                           DELETE  |                                  
+   000246                    COPY DFHAID.                                                         |                                  
+   000247C              *01    DFHAID.                                                    00010000|                                  
+   000248C                     02  DFHNULL   PIC  X  VALUE IS X'00'.                              |                                  
+   000249C                     02  DFHENTER  PIC  X  VALUE IS X'27'.                              |                                  
+   000250C                     02  DFHCLEAR  PIC  X  VALUE IS X'5F'.                              |                                  
+   000251C                     02  DFHPEN    PIC  X  VALUE IS X'3D'.                              |                                  
+   000252C                     02  DFHOPID   PIC  X  VALUE IS X'57'.                              |                                  
+   000253C                     02  DFHMSRE   PIC  X  VALUE IS X'58'.                              |                                  
+   000254C                     02  DFHTRIG   PIC  X  VALUE IS X'22'.                              |                                  
+   000255C                     02  DFHCLRP   PIC  X  VALUE IS X'7C'.                              |                                  
+   000256C                     02  DFHSTRF   PIC  X  VALUE IS X'68'.                              |                                  
+   000257C                     02  DFHPA1    PIC  X  VALUE IS X'25'.                              |                                  
+   000258C                     02  DFHPA2    PIC  X  VALUE IS X'3E'.                              |                                  
+   000259C                     02  DFHPA3    PIC  X  VALUE IS X'2C'.                              |                                  
+   000260C                     02  DFHPF1    PIC  X  VALUE IS X'31'.                              |                                  
+   000261C                     02  DFHPF2    PIC  X  VALUE IS X'32'.                              |                                  
+   000262C                     02  DFHPF3    PIC  X  VALUE IS X'33'.                              |                                  
+   000263C                     02  DFHPF4    PIC  X  VALUE IS X'34'.                              |                                  
+   000264C                     02  DFHPF5    PIC  X  VALUE IS X'35'.                              |                                  
+   000265C                     02  DFHPF6    PIC  X  VALUE IS X'36'.                              |                                  
+   000266C                     02  DFHPF7    PIC  X  VALUE IS X'37'.                              |                                  
+   000267C                     02  DFHPF8    PIC  X  VALUE IS X'38'.                              |                                  
+   000268C                     02  DFHPF9    PIC  X  VALUE IS X'39'.                              |                                  
+   000269C                     02  DFHPF10   PIC  X  VALUE IS X'3A'.                              |                                  
+   000270C                     02  DFHPF11   PIC  X  VALUE IS X'23'.                              |                                  
+   000271C                     02  DFHPF12   PIC  X  VALUE IS X'40'.                              |                                  
+   000272C                     02  DFHPF13   PIC  X  VALUE IS X'41'.                              |                                  
+   000273C                     02  DFHPF14   PIC  X  VALUE IS X'42'.                              |                                  
+   000274C                     02  DFHPF15   PIC  X  VALUE IS X'43'.                              |                                  
+   000275C                     02  DFHPF16   PIC  X  VALUE IS X'44'.                              |                                  
+   000276C                     02  DFHPF17   PIC  X  VALUE IS X'45'.                              |                                  
+   000277C                     02  DFHPF18   PIC  X  VALUE IS X'46'.                              |                                  
+   000278C                     02  DFHPF19   PIC  X  VALUE IS X'47'.                              |                                  
+   000279C                     02  DFHPF20   PIC  X  VALUE IS X'48'.                              |                                  
+   000280C                     02  DFHPF21   PIC  X  VALUE IS X'49'.                              |                                  
+   000281C                     02  DFHPF22   PIC  X  VALUE IS X'5B'.                              |                                  
+   000282C                     02  DFHPF23   PIC  X  VALUE IS X'2E'.                              |                                  
+   000283C                     02  DFHPF24   PIC  X  VALUE IS X'3C'.                              |                                  
+   000284C              *  02  DFHNULL   PIC  X  VALUE IS ' '.                            00020000|                                  
+   000285C              *  02  DFHENTER  PIC  X  VALUE IS QUOTE.                          00030000|                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page     7             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000286C              *  02  DFHCLEAR  PIC  X  VALUE IS '_'.                            00040000|                                  
+   000287C              *  02  DFHCLRP   PIC  X  VALUE IS ''.                            00050000|                                  
+   000288C              *  02  DFHPEN    PIC  X  VALUE IS '='.                            00060000|                                  
+   000289C              *  02  DFHOPID   PIC  X  VALUE IS 'W'.                            00070000|                                  
+   000290C              *  02  DFHMSRE   PIC  X  VALUE IS 'X'.                            00080000|                                  
+   000291C              *  02  DFHSTRF   PIC  X  VALUE IS '¸'.                            00090000|                                  
+   000292C              *  02  DFHTRIG   PIC  X  VALUE IS '"'.                            00100000|                                  
+   000293C              *  02  DFHPA1    PIC  X  VALUE IS '%'.                            00110000|                                  
+   000294C              *  02  DFHPA2    PIC  X  VALUE IS '>'.                            00120000|                                  
+   000295C              *  02  DFHPA3    PIC  X  VALUE IS ','.                            00130000|                                  
+   000296C              *  02  DFHPF1    PIC  X  VALUE IS '1'.                            00140000|                                  
+   000297C              *  02  DFHPF2    PIC  X  VALUE IS '2'.                            00150000|                                  
+   000298C              *  02  DFHPF3    PIC  X  VALUE IS '3'.                            00160000|                                  
+   000299C              *  02  DFHPF4    PIC  X  VALUE IS '4'.                            00170000|                                  
+   000300C              *  02  DFHPF5    PIC  X  VALUE IS '5'.                            00180000|                                  
+   000301C              *  02  DFHPF6    PIC  X  VALUE IS '6'.                            00190000|                                  
+   000302C              *  02  DFHPF7    PIC  X  VALUE IS '7'.                            00200000|                                  
+   000303C              *  02  DFHPF8    PIC  X  VALUE IS '8'.                            00210000|                                  
+   000304C              *  02  DFHPF9    PIC  X  VALUE IS '9'.                            00220000|                                  
+   000305C              *  02  DFHPF10   PIC  X  VALUE IS ':'.                            00230000|                                  
+   000306C              *  02  DFHPF11   PIC  X  VALUE IS '#'.                            00240000|                                  
+   000307C              *  02  DFHPF12   PIC  X  VALUE IS '@'.                            00250000|                                  
+   000308C              *  02  DFHPF13   PIC  X  VALUE IS 'A'.                            00260000|                                  
+   000309C              *  02  DFHPF14   PIC  X  VALUE IS 'B'.                            00270000|                                  
+   000310C              *  02  DFHPF15   PIC  X  VALUE IS 'C'.                            00280000|                                  
+   000311C              *  02  DFHPF16   PIC  X  VALUE IS 'D'.                            00290000|                                  
+   000312C              *  02  DFHPF17   PIC  X  VALUE IS 'E'.                            00300000|                                  
+   000313C              *  02  DFHPF18   PIC  X  VALUE IS 'F'.                            00310000|                                  
+   000314C              *  02  DFHPF19   PIC  X  VALUE IS 'G'.                            00320000|                                  
+   000315C              *  02  DFHPF20   PIC  X  VALUE IS 'H'.                            00330000|                                  
+   000316C              *  02  DFHPF21   PIC  X  VALUE IS 'I'.                            00340000|                                  
+   000317C              *  02  DFHPF22   PIC  X  VALUE IS ' '.                            00350000|                                  
+   000318C              *  02  DFHPF23   PIC  X  VALUE IS '.'.                            00360000|                                  
+   000319C              *  02  DFHPF24   PIC  X  VALUE IS '<'.                            00370000|                                  
+   000320C                     02  DFHXDUP   PIC  X  VALUE IS ''.                        00380001|                                  
+   000321                01  BMSATT-VALUES.                                                       |                                  
+   000322               *          \COPY DFHBMSCA                                         DELETE  |                                  
+   000323                    COPY DFHBMSCA.                                                       |                                  
+   000324C              *01      DFHBMSCA.                                                00010000|                                  
+   000325C                 02    DFHBMPEM  PICTURE X   VALUE  IS  X'19'.                          |                                  
+   000326C                 02    DFHBMPNL  PICTURE X   VALUE  IS  X'0A'.                          |                                  
+   000327C                 02    DFHBMASK  PICTURE X   VALUE  IS  '0'.                            |                                  
+   000328C                 02    DFHBMUNP  PICTURE X   VALUE  IS  ' '.                            |                                  
+   000329C                 02    DFHBMUNN  PICTURE X   VALUE  IS  '&'.                            |                                  
+   000330C                 02    DFHBMPRO  PICTURE X   VALUE  IS  '-'.                            |                                  
+   000331C                 02    DFHBMBRY  PICTURE X   VALUE  IS  'H'.                            |                                  
+   000332C                 02    DFHBMDAR  PICTURE X   VALUE  IS  '<'.                            |                                  
+   000333C                 02    DFHBMFSE  PICTURE X   VALUE  IS  'A'.                            |                                  
+   000334C                 02    DFHBMPRF  PICTURE X   VALUE  IS  '/'.                            |                                  
+   000335C                 02    DFHBMASF  PICTURE X   VALUE  IS  '1'.                            |                                  
+   000336C                 02    DFHBMASB  PICTURE X   VALUE  IS  '8'.                            |                                  
+   000337C                 02    DFHBMPSO  PICTURE X   VALUE  IS  X'0E'.                          |                                  
+   000338C                 02    DFHBMPSI  PICTURE X   VALUE  IS  X'0F'.                          |                                  
+   000339C                 02    DFHBMEOF  PICTURE X   VALUE  IS  X'80'.                          |                                  
+   000340C                 02    DFHBMDET  PICTURE X   VALUE  IS  X'FF'.                          |                                  
+   000341C                 02    DFHSA     PICTURE X   VALUE  IS  X'1F'.                          |                                  
+   000342C                 02    DFHERROR  PICTURE X   VALUE  IS  X'3F'.                          |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page     8             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000343C                 02    DFHCOLOR  PICTURE X   VALUE  IS  X'42'.                          |                                  
+   000344C                 02    DFHPS     PICTURE X   VALUE  IS  X'43'.                          |                                  
+   000345C                 02    DFHHLT    PICTURE X   VALUE  IS  X'41'.                          |                                  
+   000346C                 02    DFH3270   PICTURE X   VALUE  IS  X'C0'.                          |                                  
+   000347C                 02    DFHVAL    PICTURE X   VALUE  IS  X'C1'.                          |                                  
+   000348C                 02    DFHOUTLN  PICTURE X   VALUE  IS  X'C2'.                          |                                  
+   000349C                 02    DFHBKTRN  PICTURE X   VALUE  IS  X'46'.                          |                                  
+   000350C                 02    DFHALL    PICTURE X   VALUE  IS  X'00'.                          |                                  
+   000351C                 02    DFHDFT    PICTURE X   VALUE  IS  X'FF'.                          |                                  
+   000352C                 02    DFHDFCOL  PICTURE X   VALUE  IS  X'00'.                          |                                  
+   000353C                 02    DFHBLUE   PICTURE X   VALUE  IS  '1'.                            |                                  
+   000354C                 02    DFHRED    PICTURE X   VALUE  IS  '2'.                            |                                  
+   000355C                 02    DFHPINK   PICTURE X   VALUE  IS  '3'.                            |                                  
+   000356C                 02    DFHGREEN  PICTURE X   VALUE  IS  '4'.                            |                                  
+   000357C                 02    DFHTURQ   PICTURE X   VALUE  IS  '5'.                            |                                  
+   000358C                 02    DFHYELLO  PICTURE X   VALUE  IS  '6'.                            |                                  
+   000359C                 02    DFHNEUTR  PICTURE X   VALUE  IS  '7'.                            |                                  
+   000360C                 02    DFHBASE   PICTURE X   VALUE  IS  X'00'.                          |                                  
+   000361C                 02    DFHDFHI   PICTURE X   VALUE  IS  X'00'.                          |                                  
+   000362C                 02    DFHBLINK  PICTURE X   VALUE  IS  '1'.                            |                                  
+   000363C                 02    DFHREVRS  PICTURE X   VALUE  IS  '2'.                            |                                  
+   000364C                 02    DFHUNDLN  PICTURE X   VALUE  IS  '4'.                            |                                  
+   000365C                 02    DFHMFIL   PICTURE X   VALUE  IS  X'04'.                          |                                  
+   000366C                 02    DFHMENT   PICTURE X   VALUE  IS  X'02'.                          |                                  
+   000367C                 02    DFHMFE    PICTURE X   VALUE  IS  X'06'.                          |                                  
+   000368C                 02    DFHMT     PICTURE X   VALUE  IS  X'01'.                          |                                  
+   000369C                 02    DFHMFT    PICTURE X   VALUE  IS  X'05'.                          |                                  
+   000370C                 02    DFHMET    PICTURE X   VALUE  IS  X'03'.                          |                                  
+   000371C                 02    DFHUNNOD  PICTURE X   VALUE  IS  '('.                            |                                  
+   000372C                 02    DFHUNIMD  PICTURE X   VALUE  IS  'I'.                            |                                  
+   000373C                 02    DFHUNNUM  PICTURE X   VALUE  IS  'J'.                            |                                  
+   000374C                 02    DFHUNINT  PICTURE X   VALUE  IS  'R'.                            |                                  
+   000375C                 02    DFHUNNON  PICTURE X   VALUE  IS  ')'.                            |                                  
+   000376C                 02    DFHPROTI  PICTURE X   VALUE  IS  'Y'.                            |                                  
+   000377C                 02    DFHPROTN  PICTURE X   VALUE  IS  '%'.                            |                                  
+   000378C                 02    DFHMFET   PICTURE X   VALUE  IS  X'07'.                          |                                  
+   000379C                 02    DFHDFFR   PICTURE X   VALUE  IS  X'00'.                          |                                  
+   000380C                 02    DFHUNDER  PICTURE X   VALUE  IS  X'01'.                          |                                  
+   000381C                 02    DFHRIGHT  PICTURE X   VALUE  IS  X'02'.                          |                                  
+   000382C                 02    DFHOVER   PICTURE X   VALUE  IS  X'04'.                          |                                  
+   000383C                 02    DFHLEFT   PICTURE X   VALUE  IS  X'08'.                          |                                  
+   000384C                 02    DFHBOX    PICTURE X   VALUE  IS  X'0F'.                          |                                  
+   000385C                 02    DFHSOSI   PICTURE X   VALUE  IS  X'01'.                          |                                  
+   000386C                 02    DFHTRANS  PICTURE X   VALUE  IS  X'F0'.                          |                                  
+   000387C                 02    DFHOPAQ   PICTURE X   VALUE  IS  X'FF'.                          |                                  
+   000388C              *  02    DFHBMPEM  PICTURE X   VALUE  IS  ''.                    00020000|                                  
+   000389C              *  02    DFHBMPNL  PICTURE X   VALUE  IS  ''.                    00030000 |                                  
+   000390C              *  02    DFHBMASK  PICTURE X   VALUE  IS  '0'.                    00040000|                                  
+   000391C              *  02    DFHBMUNP  PICTURE X   VALUE  IS  ' '.                    00050000|                                  
+   000392C              *  02    DFHBMUNN  PICTURE X   VALUE  IS  '&'.                    00060000|                                  
+   000393C              *  02    DFHBMPRO  PICTURE X   VALUE  IS  '-'.                    00070000|                                  
+   000394C              *  02    DFHBMBRY  PICTURE X   VALUE  IS  'H'.                    00080000|                                  
+   000395C              *  02    DFHBMDAR  PICTURE X   VALUE  IS  '<'.                    00090000|                                  
+   000396C              *  02    DFHBMFSE  PICTURE X   VALUE  IS  'A'.                    00100000|                                  
+   000397C              *  02    DFHBMPRF  PICTURE X   VALUE  IS  '/'.                    00110000|                                  
+   000398C              *  02    DFHBMASF  PICTURE X   VALUE  IS  '1'.                    00120000|                                  
+   000399C              *  02    DFHBMASB  PICTURE X   VALUE  IS  '8'.                    00130000|                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page     9             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000400C              *  02    DFHBMEOF  PICTURE X   VALUE  IS  ']'.                    00140000|                                  
+   000401C              *  02    DFHBMDET  PICTURE X   VALUE  IS  ''.                    00150000|                                  
+   000402C              *  02    DFHSOSI   PICTURE X(2)  VALUE  IS '  '.                  00151000|                                  
+   000403C              *  02    R-DFHSOSI   REDEFINES DFHSOSI.                           00152000|                                  
+   000404C              *    03    DFHBMPSO  PICTURE X.                                   00160000|                                  
+   000405C              *    03    DFHBMPSI  PICTURE X.                                   00170000|                                  
+   000406C              *  02    DFHSA     PICTURE X   VALUE  IS  ''.                    00180000|                                  
+   000407C              *  02    DFHCOLOR  PICTURE X   VALUE  IS  '¢'.                    00190000|                                  
+   000408C              *  02    DFHPS     PICTURE X   VALUE  IS  '£'.                    00200000|                                  
+   000409C              *  02    DFHHLT    PICTURE X   VALUE  IS  '¡'.                    00210000|                                  
+   000410C              *  02    DFH3270   PICTURE X   VALUE  IS  '{'.                    00220000|                                  
+   000411C              *  02    DFHVAL    PICTURE X   VALUE  IS  'A'.                    00230000|                                  
+   000412C              *  02    DFHOUTLN  PICTURE X   VALUE  IS  'B'.                    00240000|                                  
+   000413C              *  02    DFHBKTRN  PICTURE X   VALUE  IS  '¦'.                    00250000|                                  
+   000414C              *  02    DFHALL    PICTURE X   VALUE  IS  ' '.                    00260000|                                  
+   000415C              *  02    DFHERROR  PICTURE X   VALUE  IS  ''.                    00270000|                                  
+   000416C              *  02    DFHDFT    PICTURE X   VALUE  IS  ''.                    00280000|                                  
+   000417C              *  02    DFHDFCOL  PICTURE X   VALUE  IS  ' '.                    00290000|                                  
+   000418C              *  02    DFHBLUE   PICTURE X   VALUE  IS  '1'.                    00300000|                                  
+   000419C              *  02    DFHRED    PICTURE X   VALUE  IS  '2'.                    00310000|                                  
+   000420C              *  02    DFHPINK   PICTURE X   VALUE  IS  '3'.                    00320000|                                  
+   000421C              *  02    DFHGREEN  PICTURE X   VALUE  IS  '4'.                    00330000|                                  
+   000422C              *  02    DFHTURQ   PICTURE X   VALUE  IS  '5'.                    00340000|                                  
+   000423C              *  02    DFHYELLO  PICTURE X   VALUE  IS  '6'.                    00350000|                                  
+   000424C              *  02    DFHNEUTR  PICTURE X   VALUE  IS  '7'.                    00360000|                                  
+   000425C              *  02    DFHBASE   PICTURE X   VALUE  IS  ' '.                    00370000|                                  
+   000426C              *  02    DFHDFHI   PICTURE X   VALUE  IS  ' '.                    00380000|                                  
+   000427C              *  02    DFHBLINK  PICTURE X   VALUE  IS  '1'.                    00390000|                                  
+   000428C              *  02    DFHREVRS  PICTURE X   VALUE  IS  '2'.                    00400000|                                  
+   000429C              *  02    DFHUNDLN  PICTURE X   VALUE  IS  '4'.                    00410000|                                  
+   000430C              *  02    DFHMFIL   PICTURE X   VALUE  IS  ''.                    00420000|                                  
+   000431C              *  02    DFHMENT   PICTURE X   VALUE  IS  ''.                    00430000|                                  
+   000432C              *  02    DFHMFE    PICTURE X   VALUE  IS  ''.                    00440000|                                  
+   000433C              *  02    DFHUNNOD  PICTURE X   VALUE  IS  '('.                    00450000|                                  
+   000434C              *  02    DFHUNIMD  PICTURE X   VALUE  IS  'I'.                    00460000|                                  
+   000435C              *  02    DFHUNNUM  PICTURE X   VALUE  IS  'J'.                    00470000|                                  
+   000436C              *  02    DFHUNINT  PICTURE X   VALUE  IS  'R'.                    00480000|                                  
+   000437C              *  02    DFHUNNON  PICTURE X   VALUE  IS  ')'.                    00490000|                                  
+   000438C              *  02    DFHPROTI  PICTURE X   VALUE  IS  'Y'.                    00500000|                                  
+   000439C              *  02    DFHPROTN  PICTURE X   VALUE  IS  '%'.                    00510000|                                  
+   000440C              *  02    DFHMT     PICTURE X   VALUE  IS  ''.                    00520000|                                  
+   000441C              *  02    DFHMFT    PICTURE X   VALUE  IS  '	'.                    00530000|                                  
+   000442C              *  02    DFHMET    PICTURE X   VALUE  IS  ''.                    00540000|                                  
+   000443C              *  02    DFHMFET   PICTURE X   VALUE  IS  ''.                    00550000|                                  
+   000444C              *  02    DFHDFFR   PICTURE X   VALUE  IS  ' '.                    00560000|                                  
+   000445C              *  02    DFHLEFT   PICTURE X   VALUE  IS  ''.                    00570000|                                  
+   000446C              *  02    DFHOVER   PICTURE X   VALUE  IS  ''.                    00580000|                                  
+   000447C              *  02    DFHRIGHT  PICTURE X   VALUE  IS  ''.                    00590000|                                  
+   000448C              *  02    DFHUNDER  PICTURE X   VALUE  IS  ''.                    00600000|                                  
+   000449C              *  02    DFHBOX    PICTURE X   VALUE  IS  ''.                    00610000|                                  
+   000450C              *  02    DFHSOSI   PICTURE X   VALUE  IS  ''.                    00620000|                                  
+   000451C              *  02    DFHTRANS  PICTURE X   VALUE  IS  '0'.                    00630000|                                  
+   000452C              *  02    DFHOPAQ   PICTURE X   VALUE  IS  ''.                    00640000|                                  
+   000453               * \LINKAGE                                                        DELETE  |                                  
+   000454               * 01  DFHCOMMAREA.                                                DELETE  |                                  
+   000455               *          \COPY YCB379                                           DELETE  |                                  
+   000456               **    :                                                           DELETE  |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    10             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000457                LINKAGE                 SECTION.                                         |                                  
+   000458                01  DFHCOMMAREA.                                                         |                                  
+   000459               *          \COPY YCB379                                           DELETE  |                                  
+   000460                    COPY YCB379.                                                         |                                  
+   000461C                   02  YCB379E1-ENT.                                                    |                                  
+   000462C                    03  QA-CD-PGMFUNC        PIC  X(2).                                 |                                  
+   000463C                    03  QA-SV-KEY100         PIC  X(100).                               |                                  
+   000464C                   02  YCB379E2-ENT.                                                    |                                  
+   000465C                    03  QA-CD-RTN            PIC  X(3).                                 |                                  
+   000466C                    03  QA-SV-KEY100         PIC  X(100).                               |                                  
+   000467               *                                                                         |                                  
+   000468               * \PROC                                                           DELETE  |                                  
+   000469                PROCEDURE               DIVISION USING DFHCOMMAREA.              CICSMODE|458                               
+   000470               *                                                                         |                                  
+   000471               *\MAIN                                                            DELETE  |                                  
+   000472               *      \OUTLINE  PPPPPPPPPPPPPPPPPPPPPPPP DELETE  |                                  
+   000473               *     b   \COMMENT  PPPPPPPPPPPPPPPPPPPPPP DELETE  |                                  
+   000474               *     b  b   :IS                                                DELETE  |                                  
+   000475               *     b  b    m‘Î‰ž•”•i”Ô†F‚a‚g‚n‚m‚R‚V‚Xn                  DELETE  |                                  
+   000476               *     b  b   :IL2                                               DELETE  |                                  
+   000477               *     b  b    “ü—Í‚³‚ê‚½ƒf[ƒ^‚Ì•¶Žš—ñ‚Ìæ“ª–”‚Í“r’†‚É‚ ‚é‹ó”’  DELETE  |                                  
+   000478               *     b  b    ‚ðíœ‚µA‘O‹l‚ß‚µ‚Äo—Í‚·‚éB                    DELETE  |                                  
+   000479               *     b  b   :IL2                                               DELETE  |                                  
+   000480               *     b  b    ‚n‚r‚O‚P‚P@F@ƒTƒuƒ‹[ƒ`ƒ“•W€^‚c‚a–¢Žg—p@    DELETE  |                                  
+   000481               *     b  b    i‚u‚…‚’@‚O‚PD‚O‚Oj                            DELETE  |                                  
+   000482               *     b  b   :IL5                                               DELETE  |                                  
+   000483               *     b  b    @@@@@ƒƒƒ@•ÏX“à—e—š—ðŠÇ—@„„„        DELETE  |                                  
+   000484               *     b  b   :IL                                                DELETE  |                                  
+   000485               *     b  b    @@@@@@‡‚@@@@@HŽ–‡‚@@@@@@        DELETE  |                                  
+   000486               *     b  b   :IL                                                DELETE  |                                  
+   000487               *     b  b    @@@@@@‚O@F@‚d‚a‚d‚m|‚O‚O‚T‚Q@@@      DELETE  |                                  
+   000488               *     b  b   :IE                                                DELETE  |                                  
+   000489               *     b   \ENDCOMM  QQQQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000490               *      \ENDOUTL  QQQQQQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000491               *    :                                                            DELETE  |                                  
+   000492               *      \DO  INT-RTN  : ‰Šú‰»ˆ—                                 DELETE  |                                  
+   000493               *      \DO  PRM-CHK  : ƒpƒ‰ƒ[ƒ^[ƒ`ƒFƒbƒNˆ—                   DELETE  |                                  
+   000494               *      \DO  PRC-RTN  : ‹@”\ˆ—                                   DELETE  |                                  
+   000495               *    :                                                            DELETE  |                                  
+   000496               *      \RETURN                                                    DELETE  |                                  
+   000497               ******************************************************************        |                                  
+   000498               *        MAIN                                                    *        |                                  
+   000499               ******************************************************************        |                                  
+   000500                MAIN                    SECTION.                                         |                                  
+   000501               *-------- ‰Šú‰»ˆ—                                                      |                                  
+   000502                    PERFORM INT-RTN THRU INT-RTN-EXIT                                    |531 536                           
+   000503               *-------- ƒpƒ‰ƒ[ƒ^[ƒ`ƒFƒbƒNˆ—                                        |                                  
+   000504                    PERFORM PRM-CHK THRU PRM-CHK-EXIT                                    |567 600                           
+   000505               *-------- ‹@”\ˆ—                                                        |                                  
+   000506                    PERFORM PRC-RTN THRU PRC-RTN-EXIT                                    |688 748                           
+   000507               *                                                                         |                                  
+   000508               *    EXEC CICS                                                    CICSMODE|                                  
+   000509               *        RETURN RESP (WK-CNV-RESP)                                CICSMODE|                                  
+   000510               *    END-EXEC                                                     CICSMODE|                                  
+   000511                    CONTINUE                                                     CICSMODE|                                  
+   000512                    EVALUATE WK-CNV-RESP                                                 |65                                
+   000513                      WHEN WK-CNS-CICS-NORMAL                                            |149                               
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    11             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000514      1                 CONTINUE                                                         |                                  
+   000515                      WHEN OTHER                                                         |                                  
+   000516               *        EXEC CICS ABEND ABCODE ('0001')                          CICSMODE|                                  
+   000517               *        END-EXEC                                                 CICSMODE|                                  
+   000518      1                 CONTINUE                                                 CICSMODE|                                  
+   000519                    END-EVALUATE                                                         |                                  
+   000520                    .                                                                    |                                  
+   000521                MAIN-EXIT.                                                               |                                  
+   000522                    GOBACK.                                                              |                                  
+   000523               *\M INT-RTN  : ‰Šú‰»ˆ—@@@@@@@@@–                     DELETE  |                                  
+   000524               *    :                                                            DELETE  |                                  
+   000525               *      \INIT YCB379E2-ENT IN DFHCOMMAREA                          DELETE  |                                  
+   000526               *    :                                                            DELETE  |                                  
+   000527               *      \EXIT                                                      DELETE  |                                  
+   000528               ******************************************************************        |                                  
+   000529               *         INT-RTN : ‰Šú‰»ˆ—@@@@@@@@@–               *        |                                  
+   000530               ******************************************************************        |                                  
+   000531                INT-RTN                 SECTION.                                         |                                  
+   000532               *                                                                         |                                  
+   000533                    INITIALIZE YCB379E2-ENT IN DFHCOMMAREA                               |464 458                           
+   000534               *                                                                         |                                  
+   000535                    .                                                                    |                                  
+   000536                INT-RTN-EXIT.                                                            |                                  
+   000537                    EXIT.                                                                |                                  
+   000538               *\M PRM-CHK  : ƒpƒ‰ƒ[ƒ^[ƒ`ƒFƒbƒNˆ—@@–                     DELETE  |                                  
+   000539               *    :                                                            DELETE  |                                  
+   000540               *      \SET  SW-ERR  =  SPACE                                     DELETE  |                                  
+   000541               *    :                                                            DELETE  |                                  
+   000542               *      \SELECT  QA-CD-PGMFUNC IN DFHCOMMAREA PPPPPPPPPP DELETE  |                                  
+   000543               *     b \WHEN  '01'                                              DELETE  |                                  
+   000544               *     b   \NOP                                                   DELETE  |                                  
+   000545               *     b \WHEN  '02'                                              DELETE  |                                  
+   000546               *     b   \NOP                                                   DELETE  |                                  
+   000547               *     b \NONE                                                    DELETE  |                                  
+   000548               *     b   \SET  SW-ERR  =  '1'                                   DELETE  |                                  
+   000549               *      \ENDSEL QQQQQQQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000550               *    :                                                            DELETE  |                                  
+   000551               *      \IF  SW-ERR  =  '1' PPPPPPPPPPPPPPPPPPP DELETE  |                                  
+   000552               *     b   \SET  QA-NM-MODU    IN YCA017  =  'PRM-CHK'            DELETE  |                                  
+   000553               *     b   \SET  QA-NM-ABEND   IN YCA017  =  'Êß×Ò°À´×°'          DELETE  |                                  
+   000554               *     b   \SET  QA-SV-KEY008  IN YCA017  =  'YCB379'             DELETE  |                                  
+   000555               *     b   \SET  QA-FLD-PGMMSG IN YCA017  =  QA-CD-PGMFUNC        DELETE  |                                  
+   000556               *     b                                     IN DFHCOMMAREA ||    DELETE  |                                  
+   000557               *     b                                     QA-SV-KEY100         DELETE  |                                  
+   000558               *     b                                     IN YCB379E1-ENT      DELETE  |                                  
+   000559               *     b                                     IN DFHCOMMAREA       DELETE  |                                  
+   000560               *     b   \DO  ABN-RTN                                           DELETE  |                                  
+   000561               *      \ENDIF  QQQQQQQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000562               *    :                                                            DELETE  |                                  
+   000563               *      \EXIT                                                      DELETE  |                                  
+   000564               ******************************************************************        |                                  
+   000565               *         PRM-CHK : ƒpƒ‰ƒ[ƒ^[ƒ`ƒFƒbƒNˆ—@@–               *        |                                  
+   000566               ******************************************************************        |                                  
+   000567                PRM-CHK                 SECTION.                                         |                                  
+   000568               *                                                                         |                                  
+   000569                    MOVE SPACE                                                           |IMP                               
+   000570                      TO SW-ERR                                                          |223                               
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    12             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000571               *                                                                         |                                  
+   000572                    EVALUATE QA-CD-PGMFUNC IN DFHCOMMAREA                                |462 458                           
+   000573                      WHEN '01'                                                          |                                  
+   000574      1                 CONTINUE                                                         |                                  
+   000575                      WHEN '02'                                                          |                                  
+   000576      1                 CONTINUE                                                         |                                  
+   000577                      WHEN OTHER                                                         |                                  
+   000578      1                 MOVE '1'                                                         |                                  
+   000579      1                   TO SW-ERR                                                      |223                               
+   000580                    END-EVALUATE                                                         |                                  
+   000581               *                                                                         |                                  
+   000582                    IF  SW-ERR = '1'                                                     |223                               
+   000583      1                 MOVE 'PRM-CHK'                                                   |                                  
+   000584      1                   TO QA-NM-MODU          IN YCA017                               |240 235                           
+   000585      1                 MOVE 'Êß×Ò°À´×°'                                                 |                                  
+   000586      1                   TO QA-NM-ABEND         IN YCA017                               |241 235                           
+   000587      1                 MOVE 'YCB379'                                                    |                                  
+   000588      1                   TO QA-SV-KEY008        IN YCA017                               |242 235                           
+   000589      1                 MOVE SPACE                                                       |IMP                               
+   000590      1                   TO QA-FLD-PGMMSG       IN YCA017                               |243 235                           
+   000591      1                 STRING QA-CD-PGMFUNC IN DFHCOMMAREA                              |462 458                           
+   000592      1                        QA-SV-KEY100 IN YCB379E1-ENT IN DFHCOMMAREA               |463 461 458                       
+   000593      1                   DELIMITED BY SIZE                                              |                                  
+   000594      1                   INTO QA-FLD-PGMMSG IN YCA017                                   |243 235                           
+   000595      1                 END-STRING                                                       |                                  
+   000596      1                 PERFORM ABN-RTN THRU ABN-RTN-EXIT                                |611 631                           
+   000597                    END-IF                                                               |                                  
+   000598               *                                                                         |                                  
+   000599                    .                                                                    |                                  
+   000600                PRM-CHK-EXIT.                                                            |                                  
+   000601                    EXIT.                                                                |                                  
+   000602               *\M ABN-RTN  : ƒAƒxƒ“ƒhˆ—@@@@@@@@@                     DELETE  |                                  
+   000603               *    :                                                            DELETE  |                                  
+   000604               *      \SET  QA-NO-PGM IN YCA017  =  WK-PGM-NO                    DELETE  |                                  
+   000605               *      \XCTL 'ZAAE500' COM YCA017                                 DELETE  |                                  
+   000606               *    :                                                            DELETE  |                                  
+   000607               *      \EXIT                                                      DELETE  |                                  
+   000608               ******************************************************************        |                                  
+   000609               *         ABN-RTN : ƒAƒxƒ“ƒhˆ—@@@@@@@@@               *        |                                  
+   000610               ******************************************************************        |                                  
+   000611                ABN-RTN                 SECTION.                                         |                                  
+   000612               *                                                                         |                                  
+   000613                    MOVE WK-PGM-NO                                                       |222                               
+   000614                      TO QA-NO-PGM           IN YCA017                                   |239 235                           
+   000615               *    EXEC CICS                                                    CICSMODE|                                  
+   000616               *        XCTL PROGRAM ('ZAAE500')                                 CICSMODE|                                  
+   000617               *        COMMAREA (YCA017)                                        CICSMODE|                                  
+   000618               *        RESP (WK-CNV-RESP)                                       CICSMODE|                                  
+   000619               *    END-EXEC                                                     CICSMODE|                                  
+   000620                    CONTINUE                                                     CICSMODE|                                  
+   000621                    EVALUATE WK-CNV-RESP                                                 |65                                
+   000622                      WHEN WK-CNS-CICS-NORMAL                                            |149                               
+   000623      1                 CONTINUE                                                         |                                  
+   000624                      WHEN OTHER                                                         |                                  
+   000625               *        EXEC CICS ABEND ABCODE ('0002')                          CICSMODE|                                  
+   000626               *        END-EXEC                                                 CICSMODE|                                  
+   000627      1                 CONTINUE                                                 CICSMODE|                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    13             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000628                    END-EVALUATE                                                         |                                  
+   000629               *                                                                         |                                  
+   000630                    .                                                                    |                                  
+   000631                ABN-RTN-EXIT.                                                            |                                  
+   000632                    EXIT.                                                                |                                  
+   000633               *\M PRC-RTN  : ‹@”\ˆ—@@@@@@@@@@–                     DELETE  |                                  
+   000634               *    :                                                            DELETE  |                                  
+   000635               *    : o—Íƒe[ƒuƒ‹ƒGƒŠƒA                                         DELETE  |                                  
+   000636               *      \INIT WK-OUT-TBL ALL                                       DELETE  |                                  
+   000637               *    : “ü—Íƒe[ƒuƒ‹ƒGƒŠƒA                                         DELETE  |                                  
+   000638               *      \SET  WK-IN-TBL  =  QA-SV-KEY100                           DELETE  |                                  
+   000639               *                          IN YCB379E1-ENT IN DFHCOMMAREA         DELETE  |                                  
+   000640               *      \SET  J       =  ZERO   : o—ÍƒZƒbƒg—pƒJƒEƒ“ƒ^[           DELETE  |                                  
+   000641               *      \SET  SW-FLG  =  SPACE  : ‹@”\ƒR[ƒhúV‚O‚PúV—p‚r‚v       DELETE  |                                  
+   000642               *    :                                                            DELETE  |                                  
+   000643               *      \SELECT  QA-CD-PGMFUNC IN DFHCOMMAREA PPPPPPPPPP DELETE  |                                  
+   000644               *     b \WHEN  '01'                                              DELETE  |                                  
+   000645               *     b   :                                                      DELETE  |                                  
+   000646               *     b   \IF  WK-IN-TBL  =  SPACE  PPPPPPPPPPPPPP DELETE  |                                  
+   000647               *     b  b   \NOP                                               DELETE  |                                  
+   000648               *     b  b \ELSE                                                DELETE  |                                  
+   000649               *     b  b   \LOOP PPPPPPPPPPPPPPPPPPPPPP DELETE  |                                  
+   000650               *     b  b  b \INDEX  I  FROM  1  TO  100                      DELETE  |                                  
+   000651               *     b  b  b   \IF  WK-IN (I)  =  SPACE  AND  SW-FLG  =  SPACEDELETE  |                                  
+   000652               *     b  b  b  b   \NOP                                       DELETE  |                                  
+   000653               *     b  b  b  b \ELSE                                        DELETE  |                                  
+   000654               *     b  b  b  b   \SET  SW-FLG  =  '1'                       DELETE  |                                  
+   000655               *     b  b  b  b   \SET  J       =  ++ 1                      DELETE  |                                  
+   000656               *     b  b  b  b   \SET  WK-OUT (J)  =  WK-IN (I)             DELETE  |                                  
+   000657               *     b  b  b   \ENDIF  QQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000658               *     b  b   \ENDLOOP  QQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000659               *     b   \ENDIF  QQQQQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000660               *     b   :                                                      DELETE  |                                  
+   000661               *     b \WHEN  '02'                                              DELETE  |                                  
+   000662               *     b   :                                                      DELETE  |                                  
+   000663               *     b   \IF  WK-IN-TBL  =  SPACE  PPPPPPPPPPPPPP DELETE  |                                  
+   000664               *     b  b   \NOP                                               DELETE  |                                  
+   000665               *     b  b \ELSE                                                DELETE  |                                  
+   000666               *     b  b   \LOOP PPPPPPPPPPPPPPPPPPPPPP DELETE  |                                  
+   000667               *     b  b  b \INDEX  I  FROM  1  TO  100                      DELETE  |                                  
+   000668               *     b  b  b   \IF  WK-IN (I)  =  SPACE  PPPPPPPPPP DELETE  |                                  
+   000669               *     b  b  b  b   \NOP                                       DELETE  |                                  
+   000670               *     b  b  b  b \ELSE                                        DELETE  |                                  
+   000671               *     b  b  b  b   \SET  J  =  ++ 1                           DELETE  |                                  
+   000672               *     b  b  b  b   \SET  WK-OUT (J)  =  WK-IN (I)             DELETE  |                                  
+   000673               *     b  b  b   \ENDIF  QQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000674               *     b  b   \ENDLOOP  QQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000675               *     b   \ENDIF  QQQQQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000676               *     b   :                                                      DELETE  |                                  
+   000677               *     b \NONE                                                    DELETE  |                                  
+   000678               *     b   \NOP                                                   DELETE  |                                  
+   000679               *      \ENDSEL QQQQQQQQQQQQQQQQQQQQQQQQQ DELETE  |                                  
+   000680               *    :                                                            DELETE  |                                  
+   000681               *      \SET  QA-SV-KEY100 IN YCB379E2-ENT IN DFHCOMMAREA  =       DELETE  |                                  
+   000682               *            WK-OUT-TBL                                           DELETE  |                                  
+   000683               *    :                                                            DELETE  |                                  
+   000684               *      \EXIT                                                      DELETE  |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    14             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000685               ******************************************************************        |                                  
+   000686               *         PRC-RTN : ‹@”\ˆ—@@@@@@@@@@–               *        |                                  
+   000687               ******************************************************************        |                                  
+   000688                PRC-RTN                 SECTION.                                         |                                  
+   000689               *                                                                         |                                  
+   000690               *  o—Íƒe[ƒuƒ‹ƒGƒŠƒA                                                     |                                  
+   000691                    MOVE SPACE                                                           |IMP                               
+   000692                      TO WK-OUT-TBL                                                      |227                               
+   000693               *  “ü—Íƒe[ƒuƒ‹ƒGƒŠƒA                                                     |                                  
+   000694                    MOVE QA-SV-KEY100        IN YCB379E1-ENT IN DFHCOMMAREA              |463 461 458                       
+   000695                      TO WK-IN-TBL                                                       |225                               
+   000696               *-------- o—ÍƒZƒbƒg—pƒJƒEƒ“ƒ^[                                          |                                  
+   000697                    MOVE ZERO                                                            |IMP                               
+   000698                      TO J                                                               |231                               
+   000699               *-------- ‹@”\ƒR[ƒhúV‚O‚PúV—p‚r‚v                                      |                                  
+   000700                    MOVE SPACE                                                           |IMP                               
+   000701                      TO SW-FLG                                                          |229                               
+   000702               *                                                                         |                                  
+   000703                    EVALUATE QA-CD-PGMFUNC IN DFHCOMMAREA                                |462 458                           
+   000704                      WHEN '01'                                                          |                                  
+   000705               *                                                                         |                                  
+   000706      1                 IF  WK-IN-TBL = SPACE                                            |225 IMP                           
+   000707      2                     CONTINUE                                                     |                                  
+   000708      1                   ELSE                                                           |                                  
+   000709      2                     PERFORM VARYING I FROM 1 BY 1                                |230                               
+   000710      2                       UNTIL I > 100                                              |230                               
+   000711      3                         IF  WK-IN(I) = SPACE AND SW-FLG = SPACE                  |226 230 IMP 229 IMP               
+   000712      4                             CONTINUE                                             |                                  
+   000713      3                           ELSE                                                   |                                  
+   000714      4                             MOVE '1'                                             |                                  
+   000715      4                               TO SW-FLG                                          |229                               
+   000716      4                             COMPUTE J = J + 1                                    |231 231                           
+   000717      4                             MOVE WK-IN(I)                                        |226 230                           
+   000718      4                               TO WK-OUT(J)                                       |228 231                           
+   000719      3                         END-IF                                                   |                                  
+   000720      2                     END-PERFORM                                                  |                                  
+   000721      1                 END-IF                                                           |                                  
+   000722               *                                                                         |                                  
+   000723                      WHEN '02'                                                          |                                  
+   000724               *                                                                         |                                  
+   000725      1                 IF  WK-IN-TBL = SPACE                                            |225 IMP                           
+   000726      2                     CONTINUE                                                     |                                  
+   000727      1                   ELSE                                                           |                                  
+   000728      2                     PERFORM VARYING I FROM 1 BY 1                                |230                               
+   000729      2                       UNTIL I > 100                                              |230                               
+   000730      3                         IF  WK-IN(I) = SPACE                                     |226 230 IMP                       
+   000731      4                             CONTINUE                                             |                                  
+   000732      3                           ELSE                                                   |                                  
+   000733      4                             COMPUTE J = J + 1                                    |231 231                           
+   000734      4                             MOVE WK-IN(I)                                        |226 230                           
+   000735      4                               TO WK-OUT(J)                                       |228 231                           
+   000736      3                         END-IF                                                   |                                  
+   000737      2                     END-PERFORM                                                  |                                  
+   000738      1                 END-IF                                                           |                                  
+   000739               *                                                                         |                                  
+   000740                      WHEN OTHER                                                         |                                  
+   000741      1                 CONTINUE                                                         |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    15             
+   LineID  PL SL  ----+-*A-1-B--+----2----+----3----+----4----+----5----+----6----+----7-|--+----8 Map and Cross Reference           
+0  000742                    END-EVALUATE                                                         |                                  
+   000743               *                                                                         |                                  
+   000744                    MOVE WK-OUT-TBL                                                      |227                               
+   000745                      TO QA-SV-KEY100        IN YCB379E2-ENT IN DFHCOMMAREA              |466 464 458                       
+   000746               *                                                                         |                                  
+   000747                    .                                                                    |                                  
+   000748                PRC-RTN-EXIT.                                                            |                                  
+   000749                    EXIT.                                                                |                                  
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    16             
+0An "M" preceding a data-name reference indicates that the data-name is modified by this reference.
+  
+  Defined   Cross-reference of data names   References                                                                               
+  
+      244   AID-VALUES                                                                                                                                                                           
+      321   BMSATT-VALUES                                                                                                                                                                        
+       71   CONS-AREA                                                                                                                                                                            
+      346   DFH3270                                                                                                                                                                              
+      350   DFHALL                                                                                                                                                                               
+      360   DFHBASE                                                                                                                                                                              
+      349   DFHBKTRN                                                                                                                                                                             
+      362   DFHBLINK                                                                                                                                                                             
+      353   DFHBLUE                                                                                                                                                                              
+      336   DFHBMASB                                                                                                                                                                             
+      335   DFHBMASF                                                                                                                                                                             
+      327   DFHBMASK                                                                                                                                                                             
+      331   DFHBMBRY                                                                                                                                                                             
+      332   DFHBMDAR                                                                                                                                                                             
+      340   DFHBMDET                                                                                                                                                                             
+      339   DFHBMEOF                                                                                                                                                                             
+      333   DFHBMFSE                                                                                                                                                                             
+      325   DFHBMPEM                                                                                                                                                                             
+      326   DFHBMPNL                                                                                                                                                                             
+      334   DFHBMPRF                                                                                                                                                                             
+      330   DFHBMPRO                                                                                                                                                                             
+      338   DFHBMPSI                                                                                                                                                                             
+      337   DFHBMPSO                                                                                                                                                                             
+      329   DFHBMUNN                                                                                                                                                                             
+      328   DFHBMUNP                                                                                                                                                                             
+      384   DFHBOX                                                                                                                                                                               
+      250   DFHCLEAR                                                                                                                                                                             
+      255   DFHCLRP                                                                                                                                                                              
+      343   DFHCOLOR                                                                                                                                                                             
+      458   DFHCOMMAREA. . . . . . . . . .  469 533 572 591 592 694 703 745                                                                                                                      
+      352   DFHDFCOL                                                                                                                                                                             
+      379   DFHDFFR                                                                                                                                                                              
+      361   DFHDFHI                                                                                                                                                                              
+      351   DFHDFT                                                                                                                                                                               
+      182   DFHEIBLK                                                                                                                                                                             
+      249   DFHENTER                                                                                                                                                                             
+      342   DFHERROR                                                                                                                                                                             
+      356   DFHGREEN                                                                                                                                                                             
+      345   DFHHLT                                                                                                                                                                               
+      383   DFHLEFT                                                                                                                                                                              
+      366   DFHMENT                                                                                                                                                                              
+      370   DFHMET                                                                                                                                                                               
+      367   DFHMFE                                                                                                                                                                               
+      378   DFHMFET                                                                                                                                                                              
+      365   DFHMFIL                                                                                                                                                                              
+      369   DFHMFT                                                                                                                                                                               
+      253   DFHMSRE                                                                                                                                                                              
+      368   DFHMT                                                                                                                                                                                
+      359   DFHNEUTR                                                                                                                                                                             
+      248   DFHNULL                                                                                                                                                                              
+      387   DFHOPAQ                                                                                                                                                                              
+      252   DFHOPID                                                                                                                                                                              
+      348   DFHOUTLN                                                                                                                                                                             
+      382   DFHOVER                                                                                                                                                                              
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    17             
+0 Defined   Cross-reference of data names   References                                                                               
+  
+0     257   DFHPA1                                                                                                                                                                               
+      258   DFHPA2                                                                                                                                                                               
+      259   DFHPA3                                                                                                                                                                               
+      251   DFHPEN                                                                                                                                                                               
+      260   DFHPF1                                                                                                                                                                               
+      269   DFHPF10                                                                                                                                                                              
+      270   DFHPF11                                                                                                                                                                              
+      271   DFHPF12                                                                                                                                                                              
+      272   DFHPF13                                                                                                                                                                              
+      273   DFHPF14                                                                                                                                                                              
+      274   DFHPF15                                                                                                                                                                              
+      275   DFHPF16                                                                                                                                                                              
+      276   DFHPF17                                                                                                                                                                              
+      277   DFHPF18                                                                                                                                                                              
+      278   DFHPF19                                                                                                                                                                              
+      261   DFHPF2                                                                                                                                                                               
+      279   DFHPF20                                                                                                                                                                              
+      280   DFHPF21                                                                                                                                                                              
+      281   DFHPF22                                                                                                                                                                              
+      282   DFHPF23                                                                                                                                                                              
+      283   DFHPF24                                                                                                                                                                              
+      262   DFHPF3                                                                                                                                                                               
+      263   DFHPF4                                                                                                                                                                               
+      264   DFHPF5                                                                                                                                                                               
+      265   DFHPF6                                                                                                                                                                               
+      266   DFHPF7                                                                                                                                                                               
+      267   DFHPF8                                                                                                                                                                               
+      268   DFHPF9                                                                                                                                                                               
+      355   DFHPINK                                                                                                                                                                              
+      376   DFHPROTI                                                                                                                                                                             
+      377   DFHPROTN                                                                                                                                                                             
+      344   DFHPS                                                                                                                                                                                
+      354   DFHRED                                                                                                                                                                               
+      363   DFHREVRS                                                                                                                                                                             
+      381   DFHRIGHT                                                                                                                                                                             
+      341   DFHSA                                                                                                                                                                                
+      385   DFHSOSI                                                                                                                                                                              
+      256   DFHSTRF                                                                                                                                                                              
+      386   DFHTRANS                                                                                                                                                                             
+      254   DFHTRIG                                                                                                                                                                              
+      357   DFHTURQ                                                                                                                                                                              
+      380   DFHUNDER                                                                                                                                                                             
+      364   DFHUNDLN                                                                                                                                                                             
+      372   DFHUNIMD                                                                                                                                                                             
+      374   DFHUNINT                                                                                                                                                                             
+      371   DFHUNNOD                                                                                                                                                                             
+      375   DFHUNNON                                                                                                                                                                             
+      373   DFHUNNUM                                                                                                                                                                             
+      347   DFHVAL                                                                                                                                                                               
+      320   DFHXDUP                                                                                                                                                                              
+      358   DFHYELLO                                                                                                                                                                             
+      191   EIBAID                                                                                                                                                                               
+      201   EIBATT                                                                                                                                                                               
+      190   EIBCALEN                                                                                                                                                                             
+      204   EIBCOMPL                                                                                                                                                                             
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    18             
+0 Defined   Cross-reference of data names   References                                                                               
+  
+0     206   EIBCONF                                                                                                                                                                              
+      189   EIBCPOSN                                                                                                                                                                             
+      184   EIBDATE                                                                                                                                                                              
+      194   EIBDS                                                                                                                                                                                
+      202   EIBEOC                                                                                                                                                                               
+      207   EIBERR                                                                                                                                                                               
+      208   EIBERRCD                                                                                                                                                                             
+      203   EIBFMH                                                                                                                                                                               
+      192   EIBFN                                                                                                                                                                                
+      198   EIBFREE                                                                                                                                                                              
+      210   EIBNODAT                                                                                                                                                                             
+      193   EIBRCODE                                                                                                                                                                             
+      199   EIBRECV                                                                                                                                                                              
+      195   EIBREQID                                                                                                                                                                             
+      211   EIBRESP                                                                                                                                                                              
+      212   EIBRESP2                                                                                                                                                                             
+      213   EIBRLDBK                                                                                                                                                                             
+      196   EIBRSRCE                                                                                                                                                                             
+      188   EIBRSVD1                                                                                                                                                                             
+      200   EIBSEND                                                                                                                                                                              
+      205   EIBSIG                                                                                                                                                                               
+      197   EIBSYNC                                                                                                                                                                              
+      209   EIBSYNRB                                                                                                                                                                             
+      186   EIBTASKN                                                                                                                                                                             
+      183   EIBTIME                                                                                                                                                                              
+      187   EIBTRMID                                                                                                                                                                             
+      185   EIBTRNID                                                                                                                                                                             
+      230   I. . . . . . . . . . . . . . .  M709 710 711 717 M728 729 730 734                                                                                                                    
+      231   J. . . . . . . . . . . . . . .  M698 M716 716 718 M733 733 735                                                                                                                       
+      462   QA-CD-PGMFUNC. . . . . . . . .  572 591 703                                                                                                                                          
+      465   QA-CD-RTN                                                                                                                                                                            
+      243   QA-FLD-PGMMSG. . . . . . . . .  M590 M594                                                                                                                                            
+      241   QA-NM-ABEND. . . . . . . . . .  M586                                                                                                                                                 
+      240   QA-NM-MODU . . . . . . . . . .  M584                                                                                                                                                 
+      239   QA-NO-PGM. . . . . . . . . . .  M614                                                                                                                                                 
+      242   QA-SV-KEY008 . . . . . . . . .  M588                                                                                                                                                 
+      463   QA-SV-KEY100 . . . . . . . . .  592 694                                                                                                                                              
+      466   QA-SV-KEY100 . . . . . . . . .  M745                                                                                                                                                 
+      223   SW-ERR . . . . . . . . . . . .  M570 M579 582                                                                                                                                        
+      229   SW-FLG . . . . . . . . . . . .  M701 711 M715                                                                                                                                        
+      147   WK-CNS-CICS                                                                                                                                                                          
+      161   WK-CNS-CICS-ENDDATA                                                                                                                                                                  
+      173   WK-CNS-CICS-ENVDEFERR                                                                                                                                                                
+      153   WK-CNS-CICS-INVREQ                                                                                                                                                                   
+      163   WK-CNS-CICS-INVTSREQ                                                                                                                                                                 
+      155   WK-CNS-CICS-IOERR                                                                                                                                                                    
+      171   WK-CNS-CICS-ISCINVREQ                                                                                                                                                                
+      159   WK-CNS-CICS-ITEMERR                                                                                                                                                                  
+      157   WK-CNS-CICS-LENGERR                                                                                                                                                                  
+      165   WK-CNS-CICS-MAPFAIL                                                                                                                                                                  
+      149   WK-CNS-CICS-NORMAL . . . . . .  513 622                                                                                                                                              
+      175   WK-CNS-CICS-NOTAUTH                                                                                                                                                                  
+      151   WK-CNS-CICS-NOTFND                                                                                                                                                                   
+      167   WK-CNS-CICS-QIDERR                                                                                                                                                                   
+      169   WK-CNS-CICS-SYSIDERR                                                                                                                                                                 
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    19             
+0 Defined   Cross-reference of data names   References                                                                               
+  
+0      82   WK-CNS-COM                                                                                                                                                                           
+      126   WK-CNS-COM-BEGSET                                                                                                                                                                    
+      122   WK-CNS-COM-DBSERR                                                                                                                                                                    
+      100   WK-CNS-COM-DMKEY                                                                                                                                                                     
+       94   WK-CNS-COM-DRAFL                                                                                                                                                                     
+      112   WK-CNS-COM-EOFGET                                                                                                                                                                    
+      120   WK-CNS-COM-EOFLOG                                                                                                                                                                    
+      116   WK-CNS-COM-ESCVIO                                                                                                                                                                    
+      110   WK-CNS-COM-EXDUP                                                                                                                                                                     
+      108   WK-CNS-COM-EXLOG                                                                                                                                                                     
+       96   WK-CNS-COM-IDXFL                                                                                                                                                                     
+      118   WK-CNS-COM-INVDBID                                                                                                                                                                   
+       88   WK-CNS-COM-INVKN                                                                                                                                                                     
+       86   WK-CNS-COM-INVTN                                                                                                                                                                     
+      102   WK-CNS-COM-MMKEY                                                                                                                                                                     
+       84   WK-CNS-COM-NORMAL                                                                                                                                                                    
+      106   WK-CNS-COM-NTFND                                                                                                                                                                     
+      114   WK-CNS-COM-NTFNDE                                                                                                                                                                    
+       90   WK-CNS-COM-NTOPN                                                                                                                                                                     
+       92   WK-CNS-COM-NTOPNU                                                                                                                                                                    
+       98   WK-CNS-COM-NTPREQ                                                                                                                                                                    
+      104   WK-CNS-COM-SDREC                                                                                                                                                                     
+      124   WK-CNS-COM-SITRPT                                                                                                                                                                    
+      128   WK-CNS-DB2                                                                                                                                                                           
+      132   WK-CNS-DB2-DMKEY                                                                                                                                                                     
+      130   WK-CNS-DB2-NORMAL                                                                                                                                                                    
+      135   WK-CNS-DB2-NOTFOUND                                                                                                                                                                  
+      137   WK-CNS-FILE                                                                                                                                                                          
+      139   WK-CNS-FILE-NORMAL                                                                                                                                                                   
+      141   WK-CNS-FILE-NOTFOUND                                                                                                                                                                 
+      142   WK-CNS-FLG                                                                                                                                                                           
+      146   WK-CNS-FLG-OFF                                                                                                                                                                       
+      144   WK-CNS-FLG-ON                                                                                                                                                                        
+       61   WK-CNV-AREA                                                                                                                                                                          
+       66   WK-CNV-AREA-END                                                                                                                                                                      
+       62   WK-CNV-AREA-START                                                                                                                                                                    
+      181   WK-CNV-DB2-IDX                                                                                                                                                                       
+      178   WK-CNV-DB2-RETURN                                                                                                                                                                    
+      177   WK-CNV-DB2-RTN                                                                                                                                                                       
+       64   WK-CNV-G                                                                                                                                                                             
+       65   WK-CNV-RESP. . . . . . . . . .  512 621                                                                                                                                              
+      179   WK-CNV-SQLCODE                                                                                                                                                                       
+      226   WK-IN. . . . . . . . . . . . .  711 717 730 734                                                                                                                                      
+      225   WK-IN-TBL. . . . . . . . . . .  M695 706 725                                                                                                                                         
+      228   WK-OUT . . . . . . . . . . . .  M718 M735                                                                                                                                            
+      227   WK-OUT-TBL . . . . . . . . . .  M692 744                                                                                                                                             
+      222   WK-PGM-NO. . . . . . . . . . .  613                                                                                                                                                  
+      220   WORK-AREA                                                                                                                                                                            
+      233   WORK-END                                                                                                                                                                             
+      221   WORK-START                                                                                                                                                                           
+      235   YCA017 . . . . . . . . . . . .  584 586 588 590 594 614                                                                                                                              
+      238   YCA017E-ENT                                                                                                                                                                          
+      461   YCB379E1-ENT . . . . . . . . .  592 694                                                                                                                                              
+      464   YCB379E2-ENT . . . . . . . . .  M533 745                                                                                                                                             
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    20             
+0Context usage is indicated by the letter preceding a procedure-name reference.
+ These letters and their meanings are:
+     A = ALTER (procedure-name)
+     D = GO TO (procedure-name) DEPENDING ON
+     E = End of range of (PERFORM) through (procedure-name)
+     G = GO TO (procedure-name)
+     P = PERFORM (procedure-name)
+     T = (ALTER) TO PROCEED TO (procedure-name)
+     U = USE FOR DEBUGGING (procedure-name)
+  
+  Defined   Cross-reference of procedures   References                                                                               
+  
+      611   ABN-RTN. . . . . . . . . . . .  P596                                                                                                                                                 
+      631   ABN-RTN-EXIT . . . . . . . . .  E596                                                                                                                                                 
+      531   INT-RTN. . . . . . . . . . . .  P502                                                                                                                                                 
+      536   INT-RTN-EXIT . . . . . . . . .  E502                                                                                                                                                 
+      500   MAIN                                                                                                                                                                                 
+      521   MAIN-EXIT                                                                                                                                                                            
+      688   PRC-RTN. . . . . . . . . . . .  P506                                                                                                                                                 
+      748   PRC-RTN-EXIT . . . . . . . . .  E506                                                                                                                                                 
+      567   PRM-CHK. . . . . . . . . . . .  P504                                                                                                                                                 
+      600   PRM-CHK-EXIT . . . . . . . . .  E504                                                                                                                                                 
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    21             
+0 Defined   Cross-reference of programs     References                                                                               
+  
+        2   ZAGZ379                                                                                                                                                                              
+1PP 5724-Z87 IBM COBOL for AIX                       4.1.1      ZAGZ379   Date 08/26/2012  Time 19:28:19   Page    22             
+0 
+          COPY/BASIS cross-reference of text-names, library names and file names                                                     
+  
+  Text-name                                 Library-name          File name                                                          
+  
+  CBLCNS01                                  SYSLIB (default)      /home/apl/alice/copy/cmn_cpy/CBLCNS01.cpy                                                                                      
+  DFHAID                                    SYSLIB (default)      /home/apl/alice/copy/alice_cpy/DFHAID.cpy                                                                                      
+  DFHBMSCA                                  SYSLIB (default)      /home/apl/alice/copy/alice_cpy/DFHBMSCA.cpy                                                                                    
+  YCA017                                    SYSLIB (default)      /home/apl/alice/copy/alice_cpy/YCA017.cpy                                                                                      
+  YCB379                                    SYSLIB (default)      /home/apl/alice/copy/alice_cpy/YCB379.cpy                                                                                      
+  
+-* Statistics for COBOL program ZAGZ379:
+ *    Source records = 749
+ *    Data Division statements = 218
+ *    Procedure Division statements = 52
+0Locale = Ja_JP.IBM-943
+0End of compilation 1,  program ZAGZ379,  no statements flagged.
+0Return code 0

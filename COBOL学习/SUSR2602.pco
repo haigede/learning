@@ -1,0 +1,1337 @@
+      ******************************************************************
+      * $Header$
+      ******************************************************************
+      *
+      * システムＩＤ   :  T-STAR
+      * システム名称   :  次期TSTARシステム
+      * プログラム名称 :  GX残高データ生成処理
+      * プログラムＩＤ :  SUSR2602
+      * 処理概要       :  SUSR2602の単体項目チェック処理
+      *
+      * 引数           :  なし
+      *
+      ******************************************************************
+      * 改訂日     担当         内容
+      * ---------- ------------ ----------------------------------------
+      * 2008/12/02 SCS          新規作成
+      *
+      ******************************************************************
+      *
+      ******************************************************************
+      *
+      *        見 出 し 部
+      *
+      ******************************************************************
+       IDENTIFICATION         DIVISION.
+      *
+       PROGRAM-ID.    SUSR2602.
+       AUTHOR.        Nomura.
+       DATE-WRITTEN.  2008-12-02.
+       DATE-COMPILED.
+      *
+      ******************************************************************
+      *
+      *        環 境 部
+      *
+      ******************************************************************
+       ENVIRONMENT            DIVISION.
+       CONFIGURATION          SECTION.
+      *SOURCE-COMPUTER.       L1000V.
+       SOURCE-COMPUTER.       L1000V  WITH  DEBUGGING  MODE.
+       OBJECT-COMPUTER.       RP5470.
+       INPUT-OUTPUT           SECTION.
+       FILE-CONTROL.
+      *
+      ******************************************************************
+      *
+      *        デ ー タ 部
+      *
+      ******************************************************************
+       DATA                   DIVISION.
+      ******************************************************************
+      *        作業場所節
+      ******************************************************************
+       WORKING-STORAGE       SECTION.
+       01  IDNAME                  PIC  X(80)  VALUE
+       "$Id$".
+      ******************************************************************
+      *                ＣＯＰＹ句 エリア
+      ******************************************************************
+       01  SCZY9001-ARG.
+           COPY  "SCZY9001.cpy".
+       01  PARM-SCZY5060-INOUT.
+           COPY  "SCZY5060.cpy".
+      ******************************************************************
+      *                コンスタント エリア
+      ******************************************************************
+       01  CNS-AREA.
+      *----- エラーフラグ
+         05  CNS-ON-OFF.
+           10  CNS-OFF                 PIC  X(01)  VALUE  "0".
+           10  CNS-ON                  PIC  X(01)  VALUE  "1".
+      *----- プログラム名称
+         05  CNS-PGM-ID                PIC  X(08)  VALUE  "SUSR2602".
+         05  CNS-ERR-RTNCD.
+           10  CNS-NORMAL              PIC  X(01)  VALUE  "0".
+           10  CNS-ERR-1               PIC  X(01)  VALUE  "1".
+           10  CNS-ERR-9               PIC  X(01)  VALUE  "9".
+      ******************************************************************
+      *                フラグ  エリア
+      ******************************************************************
+       01  FLG-AREA.
+         05  FLG-ERR                   PIC  X(01).
+         05  FLG-ERR-DSP               PIC  X(01).
+         05  FLG-SYSERR                PIC  X(01).
+      ******************************************************************
+      *                インデックスエリア
+      ******************************************************************
+       01  INDEX-AREA.
+         05  IX1                       PIC  9(05).
+         05  IX2                       PIC  9(04).
+         05  IX3                       PIC  9(04).
+      *----- バッチメッセージインデックス
+         05  IX4                       PIC  9(04).
+      ******************************************************************
+      *                ワーク  エリア
+      ******************************************************************
+       01  WK-AREA.
+         05  WK-RUN-SDATETIME      PIC  X(14).                          GUT2013
+         05  WK-RUN-EDATETIME      PIC  X(14).                          GUT2013
+         05  WK-MSG.
+           10  WK-ITEM-ID              PIC  X(30).
+           10  WK-ITEM-IX              PIC  X(30).
+           10  WK-MSG-BUFF                  PIC  X(30).
+           10  WK-MSG-ID               PIC  X(07).
+         05  WK-CHK-DATA               PIC  X(500).
+      *****************************************************************
+      *        連絡節
+      ******************************************************************
+       LINKAGE                SECTION.
+      *-----  サブルーチンＩＦ項目
+       01  AIFA-HDR.
+           COPY  "WOMCMAIFA.CPY".
+       01  USER-ATTR-HDR.
+           COPY  "CZCOMMONHEADER.cpy".
+      *----- 入出力パラメータ
+       01  SUSR2602-ARG-IN.
+           COPY  "INMUSR2610_COBOL.cpy".
+       01  SUSR2602-ARG-OUT.
+           COPY  "SUSR2602.cpy".
+      *
+      ******************************************************************
+      *
+      *        手 続 き 部
+      *
+      ******************************************************************
+       PROCEDURE              DIVISION
+           USING  AIFA-HDR
+                  USER-ATTR-HDR
+                  SUSR2602-ARG-IN
+                  SUSR2602-ARG-OUT.
+      ******************************************************************
+      *    (0) メイン処理
+      ******************************************************************
+       MAIN-PRC-RTN           SECTION.
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-SDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [MAIN-PRC-RTN]"                GUT2013
+           DISPLAY "セクションの開始時間:["WK-RUN-SDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+      D    DISPLAY  CNS-PGM-ID  ": ***  INIT-RTN  START  ***"
+      *----- 初期処理
+           PERFORM  INIT-RTN
+      *----- チェック処理
+           PERFORM  CHECK-RTN
+      *----- 終了処理
+           PERFORM  END-RTN
+      D    DISPLAY  CNS-PGM-ID  ": ***  INIT-RTN  END    ***"
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-EDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [MAIN-PRC-RTN]"                GUT2013
+           DISPLAY "セクションの終了時間:["WK-RUN-EDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+           CONTINUE.
+       MAIN-PRC-EXT.
+           EXIT PROGRAM.
+      ******************************************************************
+      *    (1) 初期処理
+      ******************************************************************
+       INIT-RTN               SECTION.
+      D    DISPLAY  CNS-PGM-ID ": ***  INIT-RTN  START  ***"
+           MOVE  SPACE  TO  FLG-AREA
+           MOVE  SPACE  TO  INDEX-AREA
+           MOVE  SPACE  TO  WK-AREA
+           MOVE  SPACE  TO  SUSR2602-ARG-OUT
+           INITIALIZE  FLG-AREA
+                       INDEX-AREA
+                       WK-AREA
+                       SUSR2602-ARG-OUT
+      *----- フラグの初期化
+           MOVE  CNS-OFF  TO  FLG-ERR
+           MOVE  CNS-OFF  TO  FLG-ERR-DSP
+           MOVE  CNS-OFF  TO  FLG-SYSERR
+      *----- リターンコードを正常終了で初期化
+           MOVE  CNS-NORMAL  TO  RTN-CD OF SUSR2602-ARG1-OUT
+      D    DISPLAY  CNS-PGM-ID ": ***  INIT-RTN  END    ***"
+           CONTINUE.
+       INIT-EXT.
+           EXIT.
+      ******************************************************************
+      *    (2) チェック処理
+      ******************************************************************
+       CHECK-RTN              SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  CHECK-RTN  START  ***"
+           MOVE  1  TO  IX1
+           MOVE  1  TO  IX3
+           MOVE  1  TO  IX4
+      *----- サービススチェック
+           PERFORM  SERVICE-0001-RTN
+      D    DISPLAY  CNS-PGM-ID  ": ***  CHECK-RTN  END    ***"
+           CONTINUE.
+       CHECK-EXT.
+           EXIT.
+      ******************************************************************
+      *    (2-1) サービスチェック処理
+      ******************************************************************
+       SERVICE-0001-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  SERVICE-0001-RTN  START  ***"
+      *----- I-KJN-YMD-FR
+           MOVE  ZERO  TO  IX2
+           MOVE  I-KJN-YMD-FR OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0001-RTN
+      *----- I-KJN-YMD-TO
+           MOVE  ZERO  TO  IX2
+           MOVE  I-KJN-YMD-TO OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0002-RTN
+      *----- I-CD-REF-KRTU-CD
+           MOVE  ZERO  TO  IX2
+           MOVE  I-CD-REF-KRTU-CD OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0003-RTN
+      *----- I-PTF-SYORI-KBN
+           MOVE  ZERO  TO  IX2
+           MOVE  I-PTF-SYORI-KBN OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0004-RTN
+      *----- I-FUND-PTF-KBN
+           MOVE  ZERO  TO  IX2
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-SDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [SERVICE-0001-RTN_1]"          GUT2013
+           DISPLAY "セクションの開始時間:["WK-RUN-SDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+           PERFORM  VARYING  IX2  FROM  1  BY  1
+             UNTIL  IX2  >  10
+               MOVE  I-FUND-PTF-KBN OF SUSR2602-ARG-IN(IX2)
+                 TO  WK-CHK-DATA
+               PERFORM  KOUMOKU-0006-RTN
+           END-PERFORM
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-EDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [SERVICE-0001-RTN_1]"          GUT2013
+           DISPLAY "セクションの終了時間:["WK-RUN-EDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+      *----- I-FUND-CD
+           MOVE  ZERO  TO  IX2
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-SDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [SERVICE-0001-RTN_2]"          GUT2013
+           DISPLAY "セクションの開始時間:["WK-RUN-SDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+           PERFORM  VARYING  IX2  FROM  1  BY  1
+             UNTIL  IX2  >  10
+               MOVE  I-FUND-CD OF SUSR2602-ARG-IN(IX2)
+                 TO  WK-CHK-DATA
+               PERFORM  KOUMOKU-0007-RTN
+           END-PERFORM
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-EDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [SERVICE-0001-RTN_2]"          GUT2013
+           DISPLAY "セクションの終了時間:["WK-RUN-EDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+      *----- I-PTF-CD
+           MOVE  ZERO  TO  IX2
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-SDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [SERVICE-0001-RTN_3]"          GUT2013
+           DISPLAY "セクションの開始時間:["WK-RUN-SDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+           PERFORM  VARYING  IX2  FROM  1  BY  1
+             UNTIL  IX2  >  10
+               MOVE  I-PTF-CD OF SUSR2602-ARG-IN(IX2)
+                 TO  WK-CHK-DATA
+               PERFORM  KOUMOKU-0008-RTN
+           END-PERFORM
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-EDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [SERVICE-0001-RTN_3]"          GUT2013
+           DISPLAY "セクションの終了時間:["WK-RUN-EDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+      *----- I-HYK-KRTU-KBN
+           MOVE  ZERO  TO  IX2
+           MOVE  I-HYK-KRTU-KBN OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0009-RTN
+      *----- I-HYK-KRTU-CD
+           MOVE  ZERO  TO  IX2
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-SDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [SERVICE-0001-RTN_4]"          GUT2013
+           DISPLAY "セクションの開始時間:["WK-RUN-SDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+           PERFORM  VARYING  IX2  FROM  1  BY  1
+             UNTIL  IX2  >  10
+               MOVE  I-HYK-KRTU-CD OF SUSR2602-ARG-IN(IX2)
+                 TO  WK-CHK-DATA
+               PERFORM  KOUMOKU-0011-RTN
+           END-PERFORM
+           MOVE FUNCTION CURRENT-DATE(1:14) TO WK-RUN-EDATETIME
+      *-------------------<DEBUG>---------------------------------------
+           DISPLAY "プログラムID:        ["CNS-PGM-ID"]"                GUT2013
+           DISPLAY "セクション:          [SERVICE-0001-RTN_4]"          GUT2013
+           DISPLAY "セクションの終了時間:["WK-RUN-EDATETIME"]"          GUT2013
+      *-----------------------------------------------------------------
+      *----- I-GX-KANSI-JIKAN-RX
+           MOVE  ZERO  TO  IX2
+           MOVE  I-GX-KANSI-JIKAN-RX OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0012-RTN
+      *----- TABLE-COUNT
+           MOVE  ZERO  TO  IX2
+           MOVE  TABLE-COUNT OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0013-RTN
+      *----- SRC-MENU-ID
+           MOVE  ZERO  TO  IX2
+           MOVE  SRC-MENU-ID OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0014-RTN
+      *----- MENU-ID
+           MOVE  ZERO  TO  IX2
+           MOVE  MENU-ID OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0015-RTN
+      *----- BUS-LOG-PK
+           MOVE  ZERO  TO  IX2
+           MOVE  BUS-LOG-PK OF SUSR2602-ARG-IN
+             TO  WK-CHK-DATA
+           PERFORM  KOUMOKU-0016-RTN
+      D    DISPLAY  CNS-PGM-ID  ": ***  SERVICE-0001-RTN  END    ***"
+           CONTINUE.
+       SERVICE-0001-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-1) 項目 I-KJN-YMD-FR チェック処理
+      ******************************************************************
+       KOUMOKU-0001-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0001-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  8            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  "1"          TO  HIDUKE-CHK  OF SCZY9001-ARG-IN
+           MOVE  8
+             TO  KETA-E       OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "基準日FROM"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0001-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0001-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-2) 項目 I-KJN-YMD-TO チェック処理
+      ******************************************************************
+       KOUMOKU-0002-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0002-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  8            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  "1"          TO  HIDUKE-CHK  OF SCZY9001-ARG-IN
+           MOVE  8
+             TO  KETA-E       OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "基準日TO"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0002-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0002-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-3) 項目 I-CD-REF-KRTU-CD チェック処理
+      ******************************************************************
+       KOUMOKU-0003-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0003-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  4            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  "1"          TO  HISU-CHK    OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "銘柄リファレンス系列"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0003-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0003-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-4) 項目 I-PTF-SYORI-KBN チェック処理
+      ******************************************************************
+       KOUMOKU-0004-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0004-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  1            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  "1"          TO  HISU-CHK    OF SCZY9001-ARG-IN
+           MOVE  1
+             TO  KETA-LE      OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "ポートフォリオ処理区分"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0004-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0004-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-6) 項目 I-FUND-PTF-KBN チェック処理
+      ******************************************************************
+       KOUMOKU-0006-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0006-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  1            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  1
+             TO  KETA-LE      OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "ポートフォリオ区分"
+               TO  WK-ITEM-ID
+             MOVE  IX2
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0006-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0006-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-7) 項目 I-FUND-CD チェック処理
+      ******************************************************************
+       KOUMOKU-0007-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0007-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  12           TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  12
+             TO  KETA-LE      OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "ファンドコード"
+               TO  WK-ITEM-ID
+             MOVE  IX2
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0007-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0007-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-8) 項目 I-PTF-CD チェック処理
+      ******************************************************************
+       KOUMOKU-0008-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0008-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  4            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  4
+             TO  KETA-LE      OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "ポートフォリオコード"
+               TO  WK-ITEM-ID
+             MOVE  IX2
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0008-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0008-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-9) 項目 I-HYK-KRTU-KBN チェック処理
+      ******************************************************************
+       KOUMOKU-0009-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0009-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  1            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  "1"          TO  HISU-CHK    OF SCZY9001-ARG-IN
+           MOVE  1
+             TO  KETA-LE      OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "評価系列処理区分"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0009-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0009-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-11) 項目 I-HYK-KRTU-CD チェック処理
+      ******************************************************************
+       KOUMOKU-0011-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0011-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  4            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  4
+             TO  KETA-LE      OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "評価系列コード"
+               TO  WK-ITEM-ID
+             MOVE  IX2
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0011-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0011-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-12) 項目 I-GX-KANSI-JIKAN-RX チェック処理
+      ******************************************************************
+       KOUMOKU-0012-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0012-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  4            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           MOVE  "1"          TO  JITU-CHK    OF SCZY9001-ARG-IN
+           MOVE  "0"
+             TO  SUTI-HANI-GE OF SCZY9001-ARG-IN
+           MOVE  "9999"
+             TO  SUTI-HANI-LE OF SCZY9001-ARG-IN
+           MOVE  4
+             TO  KETA-LE      OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "GX結果待ち時間（分）"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0012-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0012-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-13) 項目 TABLE-COUNT チェック処理
+      ******************************************************************
+       KOUMOKU-0013-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0013-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  4            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "テーブルカウント"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0013-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0013-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-14) 項目 SRC-MENU-ID チェック処理
+      ******************************************************************
+       KOUMOKU-0014-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0014-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  6            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "呼出元メニューID"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0014-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0014-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-15) 項目 MENU-ID チェック処理
+      ******************************************************************
+       KOUMOKU-0015-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0015-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  6            TO  DATA-LEN    OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "呼出先メニューID"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0015-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0015-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-16) 項目 BUS-LOG-PK チェック処理
+      ******************************************************************
+       KOUMOKU-0016-RTN       SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0016-RTN  START  ***"
+      *----- 単項目チェック
+           PERFORM  SCZY9001-INIT-RTN
+           MOVE  WK-CHK-DATA  TO  IN-CHK-DATA OF SCZY9001-ARG-IN
+           MOVE  10           TO  DATA-LEN    OF SCZY9001-ARG-IN
+           PERFORM  SCZY9001-CALL-RTN
+      *----- エラー時処理
+           INITIALIZE  PARM-SCZY5060-ARG1
+           IF  (RTN-CD OF SCZY9001-ARG  NOT  =  CNS-OFF)  AND
+               (IX1  NOT >  100  OR  IX3  NOT > 100
+                OR  IX4  NOT > 999)  THEN
+              MOVE  "業務ログユニークコード"
+               TO  WK-ITEM-ID
+             MOVE  "0000"
+               TO  WK-ITEM-IX
+             EVALUATE  RTN-CD OF SCZY9001-ARG
+               WHEN  "1"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "2"
+                 MOVE  CNS-ERR-1  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  "E000353"
+                   TO  WK-MSG-ID
+               WHEN  "9"
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+               WHEN  OTHER
+                 MOVE  CNS-ERR-9  TO  RTN-CD OF SUSR2602-ARG1-OUT
+                 MOVE  CNS-ON     TO  FLG-SYSERR
+                 MOVE  "W000354"
+                   TO  WK-MSG-ID
+             END-EVALUATE
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI    OF  PARM-SCZY5060-ARG1(2)
+             MOVE  WK-MSG-ID
+               TO  MESSAGE-ID             OF PARM-SCZY5060-ARG1
+             PERFORM  SCZY5060-CALL-RTN
+             PERFORM  BT-OUT-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- エラー時処理
+      D    DISPLAY  CNS-PGM-ID  ":IX1=["  IX1  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX3=["  IX3  "]"
+      D    DISPLAY  CNS-PGM-ID  ":IX4=["  IX4  "]"
+      D    DISPLAY  CNS-PGM-ID  ": ***  KOUMOKU-0016-RTN  END    ***"
+           CONTINUE.
+       KOUMOKU-0016-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1) 単項目チェックサブパラメータ初期化処理
+      ******************************************************************
+       SCZY9001-INIT-RTN      SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  SCZY9001-INIT-RTN  START  ***"
+           MOVE  SPACE    TO  IN-CHK-DATA OF SCZY9001-ARG
+           MOVE  0        TO  DATA-LEN    OF SCZY9001-ARG
+           MOVE  SPACE    TO  HISU-CHK    OF SCZY9001-ARG
+           MOVE  SPACE    TO  ASC-CHK     OF SCZY9001-ARG
+           MOVE  SPACE    TO  HAN-CHK     OF SCZY9001-ARG
+           MOVE  SPACE    TO  ZEN-CHK     OF SCZY9001-ARG
+           MOVE  SPACE    TO  EIJI-CHK    OF SCZY9001-ARG
+           MOVE  SPACE    TO  SUJI-CHK    OF SCZY9001-ARG
+           MOVE  SPACE    TO  EISUJI-CHK  OF SCZY9001-ARG
+           MOVE  SPACE    TO  HIDUKE-CHK  OF SCZY9001-ARG
+           MOVE  SPACE    TO  SEI-CHK     OF SCZY9001-ARG
+           MOVE  SPACE    TO  JITU-CHK    OF SCZY9001-ARG
+           MOVE  SPACE
+                         TO  SUTI-HANI-G  OF SCZY9001-ARG
+           MOVE  SPACE
+                         TO  SUTI-HANI-GE OF SCZY9001-ARG
+           MOVE  SPACE
+                         TO  SUTI-HANI-L  OF SCZY9001-ARG
+           MOVE  SPACE
+                         TO  SUTI-HANI-LE OF SCZY9001-ARG
+           MOVE  999     TO  KETA-LE      OF SCZY9001-ARG
+           MOVE  999     TO  KETA-E       OF SCZY9001-ARG
+           MOVE  SPACE   TO  RTN-CD       OF SCZY9001-ARG
+           MOVE  SPACE   TO  ERR-NAIYOU   OF SCZY9001-ARG
+      D    DISPLAY  CNS-PGM-ID  ": ***  SCZY9001-INIT-RTN  END    ***"
+           CONTINUE.
+       SCZY9001-INIT-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-2) 単項目チェックサブコール処理
+      ******************************************************************
+       SCZY9001-CALL-RTN      SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  SCZY9001-CALL-RTN  START  ***"
+           CALL  "SCZY9001"        USING  AIFA-HDR
+                                          USER-ATTR-HDR
+                                          SCZY9001-ARG
+      D    DISPLAY  CNS-PGM-ID  ": ***  SCZY9001-CALL-RTN  END    ***"
+           CONTINUE.
+       SCZY9001-CALL-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-3) オンラインメッセージIDセットルーチンコール処理
+      ******************************************************************
+       SCZY5060-CALL-RTN      SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  SCZY5060-CALL-RTN  START  ***"
+           EVALUATE  RTN-CD OF SCZY9001-ARG
+             WHEN  "1"
+             WHEN  "2"
+               EVALUATE  ERR-NAIYOU OF SCZY9001-ARG-OUT
+                 WHEN  "00"
+                   MOVE  "パラメータエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "01"
+                   MOVE  "必須チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "02"
+                   MOVE  "ASCⅡチェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "03"
+                   MOVE  "半角チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "04"
+                   MOVE  "全角チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "05"
+                   MOVE  "英字チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "06"
+                   MOVE  "数字チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "07"
+                   MOVE  "英数チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "08"
+                   MOVE  "日付チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "09"
+                   MOVE  "整数チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "10"
+                   MOVE  "実数チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "11"
+                   MOVE  "数値範囲（G）チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "12"
+                   MOVE  "数値範囲（GE）チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "13"
+                   MOVE  "数値範囲（L）チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "14"
+                   MOVE  "数値範囲（LE）チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "15"
+                   MOVE  "桁数（LE）チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  "16"
+                   MOVE  "桁数（E）チェックエラー"
+                     TO  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                 WHEN  OTHER
+                   CONTINUE
+               END-EVALUATE
+                   MOVE  TK-MOJI  OF  PARM-SCZY5060-ARG1(3)
+                     TO  WK-MSG-BUFF
+             WHEN  "9"
+                 CONTINUE
+             WHEN  OTHER
+                 CONTINUE
+           END-EVALUATE
+      D    DISPLAY  CNS-PGM-ID ":メッセージID                        =["
+      D             MESSAGE-ID          OF  PARM-SCZY5060-ARG1 "]"
+      D    DISPLAY  CNS-PGM-ID ":置換文字                            =["
+      D             TIKAN-MOJI          OF  PARM-SCZY5060-ARG1 "]"
+      D    DISPLAY  CNS-PGM-ID ":多行式の行番号                      =["
+      D             LINE-NO             OF  PARM-SCZY5060-ARG1 "]"
+           CALL  "SCZY5060"        USING  PARM-SCZY5060-INOUT
+      D    DISPLAY  CNS-PGM-ID  ": ***  SCZY5060-CALL-RTN  END    ***"
+           CONTINUE.
+       SCZY5060-CALL-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-4) バッチメッセージ処理
+      ******************************************************************
+       BT-OUT-RTN              SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  BT-OUT-RTN  START  ***"
+           IF  IX4 <= 999  THEN
+             MOVE  WK-ITEM-ID
+               TO  TK-MOJI  OF  SUSR2602-BT-OUT(IX4, 1)
+             MOVE  WK-ITEM-IX
+               TO  TK-MOJI  OF  SUSR2602-BT-OUT(IX4, 2)
+             MOVE  WK-MSG-BUFF
+               TO  TK-MOJI  OF  SUSR2602-BT-OUT(IX4, 3)
+             MOVE  WK-MSG-ID
+               TO  MSG-ID          OF  SUSR2602-BT-OUT(IX4)
+             COMPUTE IX4 = IX4 + 1
+           ELSE
+             CONTINUE
+           END-IF
+      D    DISPLAY  CNS-PGM-ID  ": ***  BT-OUT-RTN  END    ***"
+           CONTINUE.
+       BT-OUT-EXT.
+           EXIT.
+      ******************************************************************
+      *    (5) 終了処理
+      ******************************************************************
+       END-RTN                SECTION.
+      D    DISPLAY  CNS-PGM-ID  ": ***  END-RTN  START  ***"
+           IF  FLG-SYSERR = CNS-ON  THEN
+             MOVE  CNS-ERR-9    TO  RTN-CD OF SUSR2602-ARG-OUT
+           ELSE
+             CONTINUE
+           END-IF
+           MOVE  PARM-SCZY5060-ARG2        TO SUSR2602-SPP-OUT
+      D    DISPLAY  CNS-PGM-ID  ": ***  END-RTN  END    ***"
+           CONTINUE.
+       END-EXT.
+           EXIT.
+      *********************** BOTTOM OF PGM ****************************

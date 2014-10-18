@@ -1,0 +1,1036 @@
+      ******************************************************************
+      * $Header$
+000100/*****************************************************************        
+000200*                     IDENTIFICATION DIVISION                    *        
+000300*            ｼﾞﾕｴｷｼﾖｳｹﾝﾝｶﾝﾘ(IXBM) ｾﾂｿﾞｸﾃﾞｰﾀｻｸｾｲ                  *        
+000400*             <IXBM110:ｾﾂﾃｲ ﾄｳｼﾞﾂ ｻﾞﾝｿﾞﾝ ｶﾞﾝﾎﾟﾝ ｿｳｼﾝ>            *        
+000500* 990819 : ﾏﾙﾁﾕｰｻﾞｰﾀｲｵｳ(KXSM900S) ﾂｲｶ                            *        
+000600* 990819 : ｼｮﾘﾋﾞｼｭﾄｸﾎｳﾎｳ ﾍﾝｺｳ                                    *        
+000700* 991005 : ｼﾝﾌｧﾝﾄﾞｿﾞｸｾｲ(KXF1) ﾀｲｵｳ                               *        
+000800* 020801 : ｼﾞｭｴｷｼｮｳｹﾝT21ｶ ﾆ ﾄﾓﾅｳ ﾀｲｵｳ    (No.29144)              *020801  
+000900* 070420 : デッドコード廃止              (No132985)            *070420
+000900******************************************************************        
+      *次期T-STARダウンサイジング
+      * 改訂履歴
+      * 年月日     区分 所属     担当    内容
+      * --------   ---- -------- ------- -------------------------------
+      * 20070621   修正 BTC      李平    DBアクセスの全面的にリライト
+      * 20080710   修正 COM      諏訪    次期システム追いつき(№163901) 080710CM
+      ******************************************************************
+001000 IDENTIFICATION DIVISION.                                                 
+001100   PROGRAM-ID.                                                            
+001200     IXBM110.                                                             
+001300   AUTHOR.                                                                
+001400     (CASP)   COMPUTER AIDED STRUCTURED PROGRAMMING FACTORY.              
+       DATE-WRITTEN.          2007-06-21.
+       DATE-COMPILED.
+001500******************************************************************        
+001600*                       ENVIRONMENT DIVISION                     *        
+001700******************************************************************        
+001800 ENVIRONMENT DIVISION.                                                    
+001900 CONFIGURATION SECTION.                                                   
+       SOURCE-COMPUTER.       L1000V.
+      *SOURCE-COMPUTER.       L1000V   WITH DEBUGGING MODE.
+       OBJECT-COMPUTER.       RP5470.
+002400/*****************************************************************        
+002500*                       INPUT-OUTPUT SECTION                     *        
+002600******************************************************************        
+002700 INPUT-OUTPUT SECTION.                                                    
+002800 FILE-CONTROL.                                                            
+002900*    <IXIN1>                                                              
+003000***** IX36SAM  ****                                                       
+003100     SELECT   IXIN1                                                       
+003200              ASSIGN TO DA-SYS101                                         
+003300              ORGANIZATION IS SEQUENTIAL                                  
+003400              ACCESS MODE  IS SEQUENTIAL.                                 
+003500*    <IXOUT>                                                              
+003600***** IXBP36M *****                                                       
+003700     SELECT   IXOUT                                                       
+003800              ASSIGN TO DA-SYS201                                         
+003900              ORGANIZATION IS SEQUENTIAL                                  
+004000              ACCESS MODE  IS SEQUENTIAL.                                 
+      *    <IXOUT2>                                                     080710CM
+      ***** IXBP36D *****                                               080710CM
+           SELECT   IXOUT2                                              080710CM
+                    ASSIGN TO DA-SYS202                                 080710CM
+                    ORGANIZATION IS SEQUENTIAL                          080710CM
+                    ACCESS MODE  IS SEQUENTIAL.                         080710CM
+004100/*****************************************************************        
+004200*                     DATA DIVISION                              *        
+004300*                              FILE SECTION                      *        
+004400******************************************************************        
+004500 DATA DIVISION.                                                           
+004600 FILE SECTION.                                                            
+004700*    <IXIN1>                                                              
+004800***** IX36SAM ****                                                        
+004900 FD  IXIN1                                                                
+005000     RECORDING  MODE   IS   F                                             
+005100     BLOCK  CONTAINS      0 RECORDS                                       
+005200**D  RECORD CONTAINS    860 CHARACTERS                            020801  
+005300     RECORD CONTAINS    900 CHARACTERS                            020801  
+005400     LABEL  RECORD IS STANDARD.                                           
+005500 01  TR-REC.                                                              
+005600     COPY        IXLC2036.                                                
+005700*    <IXOUT>                                                              
+005800***** IXBP36M *****                                                       
+005900 FD  IXOUT                                                                
+006000     RECORDING  MODE   IS   F                                             
+006100     BLOCK  CONTAINS      0 RECORDS                                       
+006200***  RECORD CONTAINS     60 CHARACTERS                            080710CM
+           RECORD CONTAINS    114 CHARACTERS                            080710CM
+006300     LABEL  RECORD IS STANDARD.                                           
+006400*01  OUT-REC                           PIC X(060).                080710CM
+       01  OUT-REC                           PIC X(114).                080710CM
+      *    <IXOUT2>                                                     080710CM
+      ***** IXBP36D *****                                               080710CM
+       FD  IXOUT2                                                       080710CM
+           RECORDING  MODE   IS   F                                     080710CM
+           BLOCK  CONTAINS      0 RECORDS                               080710CM
+           RECORD CONTAINS    108 CHARACTERS                            080710CM
+           LABEL  RECORD IS STANDARD.                                   080710CM
+       01  OUT-REC2                          PIC X(108).                080710CM
+006500/*****************************************************************        
+006600*                    WORKING-STORAGE SECTION                     *        
+006700******************************************************************        
+006800 WORKING-STORAGE SECTION.                                                 
+       01  IDNAME                  PIC  X(80)  VALUE
+       "$Id$".
+      ******************************************************************
+      *                コンスタント  エリア                            *
+      ******************************************************************
+       01  CONS-AREA.
+      *----------    SQLコード定義コピー句
+           05  CNS-COM-AREA.
+               COPY  "CBLCNS01.cpy".
+      *----------    モジュールID
+           05  CNS-PROGID          PIC  X(16) VALUE  "IXBM110        ".
+      *----------    フラグオン
+           05  CNS-FLG-ON          PIC  9(01) VALUE 1.
+      *----------    フラグオフ
+           05  CNS-FLG-OFF         PIC  9(01) VALUE 0.
+006900 01  WK-HIZUKE.                                                   990819  
+007000     05  WK-HIZUKE-9         PIC  9(06).                          990819  
+007100****** YMCNV1     *****                                           990819  
+007200 01  YMCNV1-ARG.                                                  990819  
+007300     05 YMCNV1-IN-YMD        PIC  9(006).                         990819  
+007400     05 YMCNV1-OUT-YMD       PIC  9(008) COMP-3.                  990819  
+007500     05 YMCNV1-STS           PIC  X(001).                         990819  
+007600*---------- ﾕｰｻﾞｰｺ-ﾄﾞ ｺ-ﾙ  ﾈ-ﾑ                                    99081993
+007700 01  KXSM900S                     PIC  X(008) VALUE 'KXSM900S'.   99081993
+007800*---------- ﾕｰｻﾞｰｺ-ﾄﾞ ｾｯﾃｲ ﾊﾟﾗﾒ-ﾀ                                 990819  
+007900     COPY  KXLC4001.                                              990819  
+008000*---------- ﾕｰｻﾞｰｺ-ﾄﾞ ｼｭﾄｸ ﾊﾟﾗﾒ-ﾀ                                 990819  
+008100     COPY  KXLC4013.                                              990819  
+008200*---------- COBOL ｱﾍﾞﾝﾄﾞ ｺ-ﾙ ﾈ-ﾑ                                  990819  
+008300 01  CBLABN                       PIC  X(008) VALUE 'CBLABN  '.   990819  
+008400*---------- COBOL ｱﾍﾞﾝﾄﾞ ﾊﾟﾗﾒ-ﾀ                                   990819  
+008500 01  CBLABN-ARG                   PIC S9(004) COMP.               990819  
+008600****** ｺﾝｽﾀﾝﾄ ｴﾘｱ ************************************************990819  
+008700 01  UXGETD                       PIC  X(008) VALUE 'UXGETD  '.   990819  
+008800 01  YMCNV1                       PIC  X(008) VALUE 'YMCNV1  '.   990819  
+008900*WORK-OUT                                                                 
+009000 01  WK-OUT.                                                              
+009100     COPY        IXLCBM36.                                                
+       01  WK-OUT2.                                                     080710CM
+           05 WK2-ZAN-KUTI              PIC S9(015)  COMP-3.            080710CM
+           05 WK2-ZAN-GANP              PIC S9(015)  COMP-3.            080710CM
+           05 WK2-SET-KUTI              PIC S9(015)  COMP-3.            080710CM
+           05 WK2-SET-GANP              PIC S9(015)  COMP-3.            080710CM
+           05 WK2-SET-KNGK              PIC S9(015)  COMP-3.            080710CM
+      *EDIT-OUT                                                         080710CM
+       01  WK-EDIT1.                                                    080710CM
+           05 BM36-FUND-CD-S                 PIC  X(007).               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-SHOKEN-CD-S               PIC  X(005).               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-KIJUN-YMD-S               PIC  Z(09)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-SET-KUTI-RUI-S            PIC  -(16)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-SET-GANP-RUI-S            PIC  -(16)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-SET-KNGK-RUI-S            PIC  -(16)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-ZAN-KUTI-S                PIC  -(16)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-ZAN-GANP-S                PIC  -(16)9.               080710CM
+       01  WK-EDIT2.                                                    080710CM
+           05 BM36-FUND-CD-D                 PIC  X(007).               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-KIJUN-YMD-D               PIC  Z(09)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-SET-KUTI-D                PIC  -(16)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-SET-GANP-D                PIC  -(16)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-SET-KNGK-D                PIC  -(16)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-ZAN-KUTI-D                PIC  -(16)9.               080710CM
+           05 FILLER                         PIC  X(001)  VALUE  ','.   080710CM
+           05 BM36-ZAN-GANP-D                PIC  -(16)9.               080710CM
+009200*                                                                         
+009300***< ｻﾏﾘ ｷ- >***                                                          
+009400 01  DEGN.                                                                
+009500     05 N-ID                       PIC  X(001)   VALUE SPACES.            
+009600     05 N-KEY1.                                                           
+009700      10  N-TEN-A.                                                020801  
+009800        15 N-ITK                   PIC  X(003)   VALUE SPACES.    020801  
+009900        15 N-JTK                   PIC  X(002)   VALUE SPACES.    020801  
+010000        15 N-ICHI                  PIC  X(001)   VALUE SPACES.    020801  
+010100**D   10  N-FUND-CD                PIC  X(006)   VALUE SPACES.    020801  
+010200      10  N-FUND-CD                PIC  X(007)   VALUE SPACES.    020801  
+010300     05 N-KEY2.                                                           
+010400      10  N-KIJUN-YMD              PIC S9(008)   VALUE ZERO.              
+010500**D   10  N-SHOKEN-CD              PIC  X(003)   VALUE SPACES.    020801  
+010600      10  N-SHOKEN-CD              PIC  X(005)   VALUE SPACES.            
+010700*                                                                         
+010800 01  DEGO.                                                                
+010900     05 O-ID                       PIC  X(001)   VALUE SPACES.            
+011000     05 O-KEY1.                                                           
+011100      10  O-TEN-A.                                                020801  
+011200        15 O-ITK                   PIC  X(003)   VALUE SPACES.    020801  
+011300        15 O-JTK                   PIC  X(002)   VALUE SPACES.    020801  
+011400        15 O-ICHI                  PIC  X(001)   VALUE SPACES.    020801  
+011500**D   10  O-FUND-CD                PIC  X(006)   VALUE SPACES.    020801  
+011600      10  O-FUND-CD                PIC  X(007)   VALUE SPACES.    020801  
+011700     05 O-KEY2.                                                           
+011800      10  O-KIJUN-YMD              PIC S9(008)   VALUE ZERO.              
+011900**D   10  O-SHOKEN-CD              PIC  X(003)   VALUE SPACES.            
+012000      10  O-SHOKEN-CD              PIC  X(005)   VALUE SPACES.    020801  
+012100*                                                                         
+       01  N-KEY3.                                                      080710CM
+           05  N-KIJUN-YMD-3             PIC S9(008)   VALUE ZERO.      080710CM
+       01  O-KEY3.                                                      080710CM
+           05  O-KIJUN-YMD-3             PIC S9(008)   VALUE ZERO.      080710CM
+      *                                                                 080710CM
+012200 01  WK-AREA.                                                             
+012300     05 W-KIJUN-YMD                PIC S9(008)  COMP-3.                   
+012400     05 F-FIRST                    PIC  X(001)   VALUE SPACES.            
+012500*                                                                         
+012600*WORK                                                                     
+012700*                                                                         
+012800*ｻﾌﾞﾙ-ﾁﾝ                                                                  
+012900*----- ADABAS ﾉ ｵ-ﾌﾟﾝ ｸﾛ-ｽﾞ                                               
+013000 01  IXMINT-ARG.                                                          
+013100     COPY        IXLC4004.                                                
+013200*----- ADABAS COMMON                                                      
+013300     COPY        IXLC4001.                                                
+013400*----- ｿﾞｸｾｲ GET                                                          
+013500* No.29144 START                                                  020801  
+013600*01  TBKXF1S                      PIC  X(008) VALUE 'TBKXF1S '.   991005  
+013700*    COPY     IXLCSF1R.                                           991005  
+013800*01  KXF1-REC.                                                    991005  
+013900*    COPY     IXYC00F1.                                           991005  
+014000 01  IXIX01S                      PIC  X(008) VALUE 'IXIX01S '.   020801  
+014100     COPY     IXLCS01R.                                           020801  
+014200 01  IX01-REC.                                                    020801  
+014300     COPY        IXLC0001.                                        020801  
+014400* No.29144  END                                                   020801  
+014500*----- ｷｽｳ   GET                                                          
+014600*01  IXKISUR2                     PIC  X(08)  VALUE  'IXKISUR2'.  020801  
+014700 01  IXKISUR                      PIC  X(08)  VALUE  'IXKISURS'.  020801  
+014800     COPY     IXLCKISU.                                                   
+014900*---------- ｶｳﾝﾄ ｴﾘｱ                                                      
+015000 01  XUSKENSU                      PIC X(008) VALUE 'XUSKENSU'.           
+015100 01  XUSKENSU-ARG1                 PIC X(020)                             
+015200                                    VALUE '* IXBM110 I-Oｹﾝｽｳ *'.          
+015300 01  XUSKENSU-ARG2.                                                       
+015400     05 IXIN1-CNT                  PIC S9(013) COMP-3 VALUE ZEROS.        
+015500     05 IXOUT-CNT                  PIC S9(013) COMP-3 VALUE ZEROS.        
+           05 IXOUT-CNT2                 PIC S9(013) COMP-3 VALUE ZEROS.080710CM
+015600     05 SKIP-CNT                   PIC S9(013) COMP-3 VALUE ZEROS.        
+015700     05 FILLER                     PIC S9(013) COMP-3                     
+015800                                   VALUE -9999999999999.                  
+015900 01  XUSKENSU-ARG3.                                                       
+016000     05 FILLER                     PIC X(025)                             
+016100                                VALUE '(IN)IX36SAM          ｹﾝ  '.        
+016200     05 FILLER                     PIC X(025)                             
+016300                                VALUE '(OUT)IX36KSN         ｹﾝ  '.        
+           05 FILLER                     PIC X(025)                     080710CM
+                                      VALUE '(OUT)BM36D           ｹﾝ  '.080710CM
+016400     05 FILLER                     PIC X(025)                             
+016500                                VALUE '(SKIP                ｹﾝ  '.        
+      ******************************************************************
+      *                SQL通信,ORACLE通信,ホスト変数定義エリア
+      ******************************************************************
+           EXEC  SQL  INCLUDE  SQLCA  END-EXEC.
+           EXEC  SQL  INCLUDE  ORACA  END-EXEC.
+           EXEC  SQL  BEGIN  DECLARE  SECTION  END-EXEC.
+       01  HST-AREA.
+      *----------    Oracle接続文字列
+           05  HST-ORA-CONNECT     PIC  X(32).
+           EXEC  SQL  END    DECLARE  SECTION  END-EXEC.
+      ******************************************************************
+      *         ワーク データベース  エリア                            *
+      ******************************************************************
+       01  WORK-DB-AREA.
+      *----------    利用会社コードID
+           05  WK-RIYO-CMP-CD      PIC  X(04).
+      ******************************************************************
+      *                フラグ  エリア
+      ******************************************************************
+       01  FLAG-AREA.
+           05  FLG-DB-CONNECT      PIC  9(01).
+      ******************************************************************
+      *             スケ管追付き    ｴﾘｱ
+      ******************************************************************
+      *----------  SCZC7010
+       01  PARM-SCZC7010-INOUT.
+      *----------  リターンパッケージセットルーチンコピー句
+           COPY  "SCZC7010.cpy".
+      *----------  SCZK7020
+       01  PARM-SCZK7020-INOUT.
+      *----------  リターンパッケージセットルーチンコピー句
+           COPY  "SCZK7020.cpy".
+       01  PARM-SCZK7020-RTNPKG.
+           05  PARM-SCZK7020-ARG3.
+      *----------  RTNパッケージ
+           COPY  "CZKRTNPACKAGE.cpy".
+      *----------  SCZK7100
+       01  PARM-SCZK7100-INOUT.
+      *----------  リターンパッケージセットルーチンコピー句
+           COPY  "SCZK7100.cpy".
+       01  PARM-SCZK7100-RTNPKG.
+           05  PARM-SCZK7100-ARG3.
+           COPY  "CZKRTNPACKAGE.cpy".
+       01  SCZC7010                PIC  X(08)  VALUE  'SCZC7010'.
+       01  SCZK7020                PIC  X(08)  VALUE  'SCZK7020'.
+       01  SCZK7100                PIC  X(08)  VALUE  'SCZK7100'.
+      ******************************************************************
+      *             RTNパッケージ   ｴﾘｱ                                 
+      ******************************************************************
+      *----------  SCZC1170リターンパッケージセットコピー句             
+       01  PARM-SCZC1170-INOUT.                                         
+           COPY  "SCZC1170.cpy".                                        
+      *----------  RTNパッケージ                                        
+       01  PARM-SCZC1170-RTNPKG.                                        
+           05  PARM-SCZC1170-ARG2.                                        
+           COPY  "CZKRTNPACKAGE.cpy".                                    
+      *----------  サブルーチンコール用のRTNパッケージ                  
+       01  PARM-SUB-RTNPKG.                                             
+           COPY  "CZKRTNPACKAGE.cpy".                                     
+      *----------  定数コピー句                                         
+       01  PARM-CONSTANT-AREA.                                          
+           COPY  "SUKECNS01.cpy".                                        
+       01  SCZC1170                PIC  X(08)  VALUE  'SCZC1170'.    
+      ******************************************************************
+      *             デバッグ  ｴﾘｱ
+      ******************************************************************
+      D01  DBGSYRKS-ARG.
+      D     05  LOG-CONTENT      PIC    X(60).
+      D01  DBGSYRKS                   PIC  X(08)  VALUE  'DBGSYRKS'.
+016600/*****************************************************************        
+016700*                     LINKAGE  SECTION                           *        
+016800******************************************************************        
+016900 LINKAGE SECTION.                                                         
+017000     COPY        IXLC4002.                                                
+017100/*****************************************************************        
+017200*                      PROCEDURE DIVISION                        *        
+017300******************************************************************        
+017400 PROCEDURE DIVISION USING PARM-LINK.                                      
+017500 MAIN         SECTION.                                                    
+      *----------    RTNパッケージの初期化                               
+      D    MOVE  "COVERAGE<IXBM110      MAIN                     1   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           INITIALIZE                 PARM-SCZC1170-INOUT               
+                                      PARM-SCZC1170-RTNPKG.
+           PERFORM AUTO-INIT-RTN.
+017600 START-PROGRAM.                                                           
+017700     PERFORM PROG-INIT.                                                   
+017800     PERFORM READ-TR.                                                     
+017900 M-010.                                                                   
+018000     IF      N-ID      =    '1'                                           
+018100             PERFORM   PROC-ID-1                                          
+018200             GO  TO    M-010.                                             
+018300     IF      DEGN   NOT =   HIGH-VALUE                                    
+018400             PERFORM   PROC-ID-9                                          
+018500             GO  TO    M-010.                                             
+018600     PERFORM PROG-END.                                                    
+018700 END-PROGRAM.                                                             
+      D    MOVE  "COVERAGE<IXBM110      MAIN                     2   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           PERFORM END-RTN.
+018800     STOP RUN.                                                            
+018900/*****************************************************************        
+019000*                          SUBROUTINES                           *        
+019100******************************************************************        
+019200******* PROG-INIT    **************************************/CAP/**        
+019300*                        PROG-INIT                               *        
+019400******************************************************************        
+019500 PROG-INIT SECTION.                                                       
+019600 PROG-INIT-START.                                                         
+019700     OPEN    INPUT     IXIN1                                              
+019800             OUTPUT    IXOUT.                                             
+           OPEN    OUTPUT    IXOUT2.                                    080710CM
+019900*                                                                         
+020000*     MOVE    SPACE     TO   IXMINT-ARG.                                   
+020100*     MOVE    'OP'      TO   IXMINT-SHORI-KBN OF IXMINT-ARG.               
+020200*     MOVE    'ACC'     TO   IXMINT-ACC-MODE OF IXMINT-ARG.                
+020300*     MOVE    'IX01R0'  TO   IXMINT-MODULE-NAME OF IXMINT-ARG (1). 020801  
+020400**D  MOVE    'KXF1R0'  TO   IXMINT-MODULE-NAME OF IXMINT-ARG (1). 020801  
+020500     MOVE    PARM-LINK TO   IXMINT-EXEC-PARA OF IXMINT-ARG.               
+020600     CALL    IXMINT    USING     IXMINT-ARG.                              
+020700*** ｼｮﾘﾋﾞｼｭﾄｸ ｼｮﾘ                                                 990819  
+020800*    MOVE    IXMINT-SHORI-YMD    TO   W-KIJUN-YMD.                990819  
+020900     CALL    UXGETD         USING    PARM-LINK                    990819  
+021000                                     WK-HIZUKE.                   990819  
+021100     MOVE    WK-HIZUKE-9    TO       YMCNV1-IN-YMD.               990819  
+021200*    CALL    YMCNV1         USING    YMCNV1-ARG.                  990819  
+      D    MOVE  "COVERAGE<IXBM110      PROG-INIT                3   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           INITIALIZE  PARM-SUB-RTNPKG                                 
+           CALL       YMCNV1   USING  PARM-SUB-RTNPKG     
+                                      YMCNV1-ARG.         
+           IF  RTN-CD                 OF  PARM-SUB-RTNPKG               
+              (COUNTER                OF  PARM-SUB-RTNPKG)              
+                                      =  CNS-RTN-ERROR                  
+           THEN                                                         
+      D    MOVE  "COVERAGE<IXBM110      PROG-INIT                4   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  PARM-SUB-RTNPKG  TO  PARM-SCZC1170-RTNPKG       
+               MOVE  CNS-POS-1        TO  ERR-POS                    
+                                      OF  PARM-SCZC1170-INOUT              
+               PERFORM  ERROR-RTN                                       
+           END-IF                                                       
+021300     MOVE    YMCNV1-OUT-YMD       TO        W-KIJUN-YMD.          990819  
+021400***< ﾀﾞﾐ-ﾚｺ-ﾄﾞ ｼﾕﾂﾘﾖｸ >***                                                
+021500     MOVE    SPACE               TO   WK-OUT.                             
+021600     INITIALIZE                       WK-OUT.                             
+           INITIALIZE                       WK-OUT2.                    080710CM
+           INITIALIZE                       WK-EDIT1.                   080710CM
+           INITIALIZE                       WK-EDIT2.                   080710CM
+021700***  MOVE    '000001'            TO   BM36-FUND-CD OF WK-OUT.     080710CM
+           MOVE    '000001'            TO   BM36-FUND-CD-S.             080710CM
+021800***  MOVE    W-KIJUN-YMD         TO   BM36-KIJUN-YMD OF WK-OUT.   080710CM
+           MOVE    W-KIJUN-YMD         TO   BM36-KIJUN-YMD-S.           080710CM
+021900***  WRITE   OUT-REC             FROM WK-OUT.                     080710CM
+           WRITE   OUT-REC             FROM WK-EDIT1.                   080710CM
+022000     ADD     1                   TO   IXOUT-CNT.                          
+022100**************************                                                
+022200     MOVE    SPACE               TO   BM36-FUND-CD OF WK-OUT.             
+022300*----<< ｶｲｼﾔ ｺ-ﾄﾞ GET  >>----------------------------------------*990819  
+022400* No.29144 START                                                  020801  
+022500**   MOVE  1                  TO  KXSM900S-CDSQ-2.                990819  
+022600**   CALL  KXSM900S        USING  KXSM900S-CDSQ                   990819  
+022700**                                KXSM900S-CDSQ-CD                990819  
+022800**                                KXSM900S-CDSQ-RTN.              990819  
+022900**   IF    KXSM900S-CDSQ-RTN  NOT  =  '0'                         990819  
+023000**         MOVE  99           TO  CBLABN-ARG                      990819  
+023100**         DISPLAY  'KXSM900S ﾕｰｻﾞｰｺｰﾄﾞ ｼﾕﾄｸ ｴﾗ- ﾘﾀ-ﾝｺ-ﾄﾞ='       990819  
+023200**                                KXSM900S-CDSQ-RTN               990819  
+023300**         CALL  CBLABN    USING  CBLABN-ARG.                     990819  
+023400     MOVE  SPACE             TO   KXSM900S-CODE-KBN.              020801  
+023500*    CALL  KXSM900S       USING   KXSM900S-CODE                   020801  
+023600*                                 KXSM900S-KAISHA-CD              020801  
+023700*                                 KXSM900S-KAISHA-RTN             020801  
+023800*                                 KXSM900S-CODE-KBN.              020801  
+      D    MOVE  "COVERAGE<IXBM110      PROG-INIT                5   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           INITIALIZE  PARM-SUB-RTNPKG                                 
+           CALL     KXSM900S   USING  PARM-SUB-RTNPKG     
+                                      KXSM900S-CODE       
+                                      KXSM900S-KAISHA-CD  
+                                      KXSM900S-KAISHA-RTN 
+                                      KXSM900S-CODE-KBN.  
+           IF  RTN-CD                 OF  PARM-SUB-RTNPKG               
+              (COUNTER                OF  PARM-SUB-RTNPKG)              
+                                      =  CNS-RTN-ERROR                  
+           THEN                                                         
+      D    MOVE  "COVERAGE<IXBM110      PROG-INIT                6   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  PARM-SUB-RTNPKG  TO  PARM-SCZC1170-RTNPKG       
+               MOVE  CNS-POS-2        TO  ERR-POS                    
+                                      OF  PARM-SCZC1170-INOUT              
+               PERFORM  ERROR-RTN                                       
+           END-IF                                                       
+023900*                                                                 020801  
+024000     IF  KXSM900S-KAISHA-RTN  =   '0'                             020801  
+024100         CONTINUE                                                 020801  
+024200     ELSE                                                         020801  
+024300         DISPLAY                                                  020801  
+024400              '<IXBM110>KXSM900S ｼｽﾃﾑﾅｲｶｲｼﾔｺ-ﾄﾞ ｼﾕﾄｸｴﾗ- RTN-CD='  020801  
+024500                                            KXSM900S-KAISHA-RTN   020801  
+024600*        CALL  CBLABN     USING   CBLABN-ARG                      020801  
+      D    MOVE  "COVERAGE<IXBM110      PROG-INIT                7   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+                   MOVE  ZERO         TO  DETAIL-RTN-CD                 
+                                      OF  PARM-SCZC1170-INOUT       
+                   MOVE  CNS-POS-3    TO  ERR-POS                    
+                                      OF  PARM-SCZC1170-INOUT               
+                   PERFORM  ERROR-RTN
+024700     END-IF.                                                      020801  
+024800*----<< ｶｲｼﾔ ｺ-ﾄﾞ PUT  >>----------------------------------------*990819  
+024900**   MOVE  KXSM900S-CDSQ-CD   TO  KXSM900S-KAISHA-CD.             990819  
+025000**   MOVE  'PUT'              TO  KXSM900S-CODE-KBN.              990819  
+025100**   MOVE  'CODE'             TO  KXSM900S-CODE.                  990819  
+025200**   CALL  KXSM900S        USING  KXSM900S-CODE                   990819  
+025300**                                KXSM900S-KAISHA-CD              990819  
+025400**                                KXSM900S-KAISHA-RTN             990819  
+025500**                                KXSM900S-CODE-KBN.              990819  
+025600**   IF    KXSM900S-KAISHA-RTN  =  '9'                            990819  
+025700**         MOVE  99           TO  CBLABN-ARG                      990819  
+025800**         DISPLAY  'KXSM900S ﾕｰｻﾞｰｺｰﾄﾞ ｾﾂﾃｲ ｴﾗ- ﾘﾀ-ﾝｺ-ﾄﾞ='       990819  
+025900**                                KXSM900S-KAISHA-RTN             990819  
+026000**         CALL  CBLABN    USING  CBLABN-ARG.                     990819  
+026100     MOVE  'CODE'              TO  KXSM900S-CODE.                 020801  
+026200     MOVE  'PUT'               TO  KXSM900S-CODE-KBN.             020801  
+026300*    CALL  KXSM900S       USING   KXSM900S-CODE                   020801  
+026400*                                 KXSM900S-KAISHA-CD              020801  
+026500*                                 KXSM900S-KAISHA-RTN             020801  
+026600*                                 KXSM900S-CODE-KBN.              020801  
+      D    MOVE  "COVERAGE<IXBM110      PROG-INIT                8   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           INITIALIZE  PARM-SUB-RTNPKG                                 
+           CALL     KXSM900S   USING  PARM-SUB-RTNPKG     
+                                      KXSM900S-CODE       
+                                      KXSM900S-KAISHA-CD  
+                                      KXSM900S-KAISHA-RTN 
+                                      KXSM900S-CODE-KBN.  
+           IF  RTN-CD                 OF  PARM-SUB-RTNPKG               
+              (COUNTER                OF  PARM-SUB-RTNPKG)              
+                                      =  CNS-RTN-ERROR                  
+           THEN                                                         
+      D    MOVE  "COVERAGE<IXBM110      PROG-INIT                9   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  PARM-SUB-RTNPKG  TO  PARM-SCZC1170-RTNPKG       
+               MOVE  CNS-POS-4        TO  ERR-POS                    
+                                      OF  PARM-SCZC1170-INOUT              
+               PERFORM  ERROR-RTN                                       
+           END-IF                                                       
+026700*                                                                 020801  
+026800     IF  KXSM900S-KAISHA-RTN  =   '0'                             020801  
+026900         CONTINUE                                                 020801  
+027000     ELSE                                                         020801  
+027100         DISPLAY                                                  020801  
+027200              '<IXBM110>KXSM900S ｼｽﾃﾑﾅｲｶｲｼﾔｺ-ﾄﾞ ｼﾕﾄｸｴﾗ- RTN-CD='  020801  
+027300                                            KXSM900S-KAISHA-RTN   020801  
+027400*        CALL  CBLABN     USING   CBLABN-ARG                      020801  
+      D    MOVE  "COVERAGE<IXBM110      PROG-INIT                10  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+                   MOVE  ZERO         TO  DETAIL-RTN-CD                 
+                                      OF  PARM-SCZC1170-INOUT       
+                   MOVE  CNS-POS-5    TO  ERR-POS                    
+                                      OF  PARM-SCZC1170-INOUT               
+                   PERFORM  ERROR-RTN
+027500     END-IF.                                                      020801  
+027600* No.29144  END                                                   020801  
+027700************************************************************END***990819  
+027800 PROG-INIT-EXIT.                                                          
+027900     EXIT.                                                                
+028000******* READ-TR      **************************************/CAP/**        
+028100*                      READ-TR                                   *        
+028200******************************************************************        
+028300 READ-TR SECTION.                                                         
+028400 READ-TR-START.                                                           
+028500     READ    IXIN1                                                        
+028600             AT END    MOVE HIGH-VALUE     TO   DEGN                      
+028700                       GO   TO   READ-TR-EXIT.                            
+028800     IF      IX36-ITK-CODE  NOT  =   KXSM900S-KAISHA-CD(2:3)      020801  
+028900             GO   TO   READ-TR-START.                             020801  
+029000     ADD     1                        TO   IXIN1-CNT.                     
+029100     MOVE    '1'                      TO   N-ID.                          
+029200     MOVE    IX36-ITK-CODE            TO   N-ITK.                 020801  
+029300     MOVE    IX36-JTK-CODE            TO   N-JTK.                 020801  
+029400     MOVE    IX36-ICHIGEN-KBN         TO   N-ICHI.                020801  
+029500     MOVE    IX36-FUND-CD   OF TR-REC TO   N-FUND-CD.                     
+029600     MOVE    W-KIJUN-YMD              TO   N-KIJUN-YMD.                   
+029700     MOVE    IX36-SHOKEN-CD OF TR-REC TO   N-SHOKEN-CD.                   
+029800     MOVE    '*'                      TO   F-FIRST.                       
+           MOVE    IX36-KIJUN-YMD           TO   N-KIJUN-YMD-3.         080710CM
+029900 READ-TR-EXIT.                                                            
+030000     EXIT.                                                                
+030100******* DEGO-SET     **************************************/CAP/**        
+030200*                        DEGO-SET                                *        
+030300******************************************************************        
+030400 DEGO-SET SECTION.                                                        
+030500 DEGO-SET-START.                                                          
+030600      MOVE   DEGN                TO   DEGO.                               
+            MOVE   N-KIJUN-YMD-3       TO   O-KIJUN-YMD-3.              080710CM
+030700 DEGO-SET-EXIT.                                                           
+030800     EXIT.                                                                
+030900******* PROC-ID-1    **************************************/CAP/**        
+031000*                      PROC-ID-1                                 *        
+031100******************************************************************        
+031200 PROC-ID-1 SECTION.                                                       
+031300 PROC-ID-1-START.                                                         
+031400     PERFORM PROC-1-INIT.                                                 
+031500 V11.                                                                     
+031600     PERFORM DEGO-SET.                                                    
+031700     GO   TO V15.                                                         
+031800 V12.                                                                     
+031900     IF      N-ID      NOT =     O-ID                                     
+032000             PERFORM   BREAK1-1                                           
+                   PERFORM   BREAK2-1                                   080710CM
+032100             PERFORM   BREAK1-2                                           
+032200             GO   TO   PROC-ID-1-EXIT.                                    
+032300 V13.                                                                     
+032400     IF      N-KEY1    NOT =     O-KEY1                                   
+032500             PERFORM   BREAK1-1                                           
+                   PERFORM   BREAK2-1                                   080710CM
+032600             PERFORM   BREAK1-2                                           
+032700             GO   TO   V11.                                               
+032800 V14.                                                                     
+032900     IF      N-KEY2    NOT =     O-KEY2                                   
+033000***          PERFORM   BREAK1-1                                   080710CM
+                   PERFORM   BREAK1-1.                                  080710CM
+           IF      N-KIJUN-YMD-3  NOT =  O-KIJUN-YMD-3                  080710CM
+                   PERFORM   BREAK2-1.                                  080710CM
+033100             GO   TO   V11.                                               
+033200 V15.                                                                     
+033300             PERFORM   PROC-1-1                                           
+033400             PERFORM   READ-TR.                                           
+033500     GO   TO V12.                                                         
+033600 PROC-ID-1-EXIT.                                                          
+033700     EXIT.                                                                
+033800******* PROC-1-INIT  **************************************/CAP/**        
+033900*                      PROC-1-INIT                               *        
+034000******************************************************************        
+034100 PROC-1-INIT SECTION.                                                     
+034200 PROC-1-INIT-START.                                                       
+034300     MOVE    '*'                      TO   F-FIRST.                       
+034400 PROC-1-INIT-EXIT.                                                        
+034500     EXIT.                                                                
+034600******* PROC-1-1     **************************************/CAP/**        
+034700*        PROC-1-1  (ｻﾏﾘｰ ﾙｰﾁﾝ)                                   *        
+034800******************************************************************        
+034900 PROC-1-1 SECTION.                                                        
+035000 PROC-1-1-START.                                                          
+035100***< ｾｯﾃｲﾋﾞ ﾉ ｼﾕﾄｸ >***                                                   
+035200     IF  F-FIRST  = '*'                                                   
+035300       THEN  PERFORM FUND-GET                                             
+035400             MOVE    ' '              TO   F-FIRST.                       
+035500*                                                                         
+           PERFORM  PROC-1-1-1.                                         080710CM
+      *                                                                 080710CM
+035600**D  IF  W-KIJUN-YMD NOT = KXF1-SET-TYMD                    020801991005  
+035700     IF  W-KIJUN-YMD NOT = IX01-SET-TYMD                          020801  
+035800          ADD     1        TO        SKIP-CNT                             
+035900          GO   TO     PROC-1-1-EXIT.                                      
+036000*                                                                         
+036100     IF  BM36-FUND-CD OF WK-OUT   =   '      '                            
+036200       THEN   MOVE  IX36-FUND-CD   OF TR-REC  TO                          
+036300                                   BM36-FUND-CD   OF WK-OUT               
+036400              MOVE  IX36-KIJUN-YMD OF TR-REC  TO                          
+036500                                   BM36-KIJUN-YMD OF WK-OUT.              
+036600**D  IF  BM36-SHOKEN-CD OF WK-OUT   =   '   '                     020801  
+036700     IF  BM36-SHOKEN-CD OF WK-OUT   =   '     '                   020801  
+036800              MOVE  IX36-SHOKEN-CD OF TR-REC  TO                          
+036900                                   BM36-SHOKEN-CD OF WK-OUT.              
+037000*                                                                         
+037100     COMPUTE  BM36-SET-KUTI-RUI  OF WK-OUT  =                             
+037200              BM36-SET-KUTI-RUI  OF WK-OUT                                
+037300                                 + IX36-SET-KUTI-RUI OF TR-REC.           
+037400*                                                                         
+037500     COMPUTE  BM36-SET-GANP-RUI  OF WK-OUT  =                             
+037600              BM36-SET-GANP-RUI  OF WK-OUT                                
+037700                                 + IX36-SET-GANP-RUI OF TR-REC.           
+037800*                                                                         
+037900     COMPUTE  BM36-SET-KNGK-RUI  OF WK-OUT  =                             
+038000              BM36-SET-KNGK-RUI  OF WK-OUT                                
+038100                                 + IX36-SET-KNGK-RUI OF TR-REC.           
+038200*                                                                         
+038300     COMPUTE  BM36-ZAN-KUTI      OF WK-OUT  =                             
+038400              BM36-ZAN-KUTI      OF WK-OUT                                
+038500                                 + IX36-ZAN-KUTI     OF TR-REC.           
+038600*                                                                         
+038700     COMPUTE  BM36-ZAN-GANP      OF WK-OUT  =                             
+038800              BM36-ZAN-GANP      OF WK-OUT                                
+038900                                 + IX36-SET-GANP     OF TR-REC.           
+039000*                                                                         
+039100 PROC-1-1-EXIT.                                                           
+039200     EXIT.                                                                
+      ******* PROC-1-1-1   **************************************/CAP/**080710CM
+      *        PROC-1-1-1  (ｻﾏﾘｰ ﾙｰﾁﾝ)                                 *080710CM
+      ******************************************************************080710CM
+       PROC-1-1-1 SECTION.                                              080710CM
+       PROC-1-1-1-START.                                                080710CM
+      *                                                                 080710CM
+           MOVE  IX36-FUND-CD   OF TR-REC                               080710CM
+                                      TO  BM36-FUND-CD-D.               080710CM
+           MOVE  IX36-KIJUN-YMD OF TR-REC                               080710CM
+                                      TO  BM36-KIJUN-YMD-D.             080710CM
+           COMPUTE  WK2-ZAN-KUTI  =  WK2-ZAN-KUTI                       080710CM
+                                  +  IX36-ZAN-KUTI.                     080710CM
+           COMPUTE  WK2-ZAN-GANP  =  WK2-ZAN-GANP                       080710CM
+                                  +  IX36-ZAN-GANP.                     080710CM
+           COMPUTE  WK2-SET-KUTI  =  WK2-SET-KUTI                       080710CM
+                                  +  IX36-SET-KUTI.                     080710CM
+           COMPUTE  WK2-SET-GANP  =  WK2-SET-GANP                       080710CM
+                                  +  IX36-SET-GANP.                     080710CM
+           COMPUTE  WK2-SET-KNGK  =  WK2-SET-KNGK                       080710CM
+                                  +  IX36-SET-KNGK.                     080710CM
+      *                                                                 080710CM
+       PROC-1-1-1-EXIT.                                                 080710CM
+           EXIT.                                                        080710CM
+039300******* FUND-GET ******************************************/CAP/**        
+039400*                     FUND-GET                                   *        
+039500******************************************************************        
+039600 FUND-GET SECTION.                                                        
+039700 FUND-GET-START.                                                          
+039800* No.29144 START                                                  020801  
+039900**   MOVE    N-FUND-CD           TO   FUND-CD   OF TBKXF1S-ARG.   991005  
+040000**   MOVE    'R'                 TO   SHORI-KBN OF TBKXF1S-ARG.   991005  
+040100**   CALL    TBKXF1S          USING   TBKXF1S-ARG.                991005  
+040200**   MOVE    F-ZOKU-REC OF TBKXF1S-ARG     TO   KXF1-REC.         991005  
+040300     MOVE    N-ITK               TO   ITK-CODE  OF IXIX01S-ARG.   020801  
+040400     MOVE    N-JTK               TO   JTK-CODE  OF IXIX01S-ARG.   020801  
+040500     MOVE    N-ICHI              TO ICHIGEN-KBN OF IXIX01S-ARG.   020801  
+040600     MOVE    N-FUND-CD           TO   FUND-CD   OF IXIX01S-ARG.   020801  
+040700     MOVE    'R'                 TO   SHORI-KBN OF IXIX01S-ARG.   020801  
+040800*    CALL    IXIX01S          USING   IXIX01S-ARG.                020801  
+      D    MOVE  "COVERAGE<IXBM110      FUND-GET                 11  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           INITIALIZE  PARM-SUB-RTNPKG                                 
+           CALL      IXIX01S   USING  PARM-SUB-RTNPKG     
+                                      IXIX01S-ARG.        
+           IF  RTN-CD                 OF  PARM-SUB-RTNPKG               
+              (COUNTER                OF  PARM-SUB-RTNPKG)              
+                                      =  CNS-RTN-ERROR                  
+           THEN                                                         
+      D    MOVE  "COVERAGE<IXBM110      FUND-GET                 12  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  PARM-SUB-RTNPKG  TO  PARM-SCZC1170-RTNPKG       
+               MOVE  CNS-POS-6        TO  ERR-POS                    
+                                      OF  PARM-SCZC1170-INOUT              
+               PERFORM  ERROR-RTN                                       
+           END-IF                                                       
+040900     MOVE    F-ZOKU-REC OF IXIX01S-ARG     TO   IX01-REC.         020801  
+041000     IF      ERR-STATUS OF IXIX01S-ARG NOT  =  SPACES             020801  
+041100             DISPLAY  '***  <IXBM110>  ﾌｱﾝﾄﾞ ｿﾞｸｾｲ  GET ｴﾗ-  '    020801  
+041200                      'ﾌｱﾝﾄﾞ ｺ-ﾄﾞ : ' N-FUND-CD                   020801  
+041300                      '  ***'.                                    020801  
+041400* No.29144  END                                                   020801  
+041500 FUND-GET-EXIT.                                                           
+041600     EXIT.                                                                
+042400******* BREAK1-1     **************************************/CAP/**        
+042500*                     BREAK1-1                                   *        
+042600******************************************************************        
+042700 BREAK1-1 SECTION.                                                        
+042800 BREAK1-1-START.                                                          
+042900     IF BM36-FUND-CD OF WK-OUT  NOT = '      '                            
+043000***    THEN  WRITE    OUT-REC   FROM   WK-OUT                     080710CM
+              PERFORM  EDIT-PROC1                                       080710CM
+              WRITE    OUT-REC   FROM   WK-EDIT1                        080710CM
+              ADD      1         TO     IXOUT-CNT                       080710CM
+043100***          ADD      1         TO     IXOUT-CNT.                 080710CM
+           END-IF.                                                      080710CM
+043200*                                                                         
+043300     MOVE      SPACE            TO     WK-OUT.                            
+043400     INITIALIZE                        WK-OUT.                            
+           INITIALIZE                        WK-EDIT1.                  080710CM
+043500 BREAK1-1-EXIT.                                                           
+043600     EXIT.                                                                
+043700******* BREAK1-2     **************************************/CAP/**        
+043800*                     BREAK1-2                                   *        
+043900******************************************************************        
+044000 BREAK1-2 SECTION.                                                        
+044100 BREAK1-2-START.                                                          
+044200     MOVE    '*'            TO   F-FIRST.                                 
+044300 BREAK1-2-EXIT.                                                           
+044400     EXIT.                                                                
+      ******* BREAK2-1     **************************************/CAP/**080710CM
+      *                     BREAK2-1                                   *080710CM
+      ******************************************************************080710CM
+       BREAK2-1 SECTION.                                                080710CM
+       BREAK2-1-START.                                                  080710CM
+      *                                                                 080710CM
+           MOVE  WK2-SET-KUTI         TO  BM36-SET-KUTI-D.              080710CM
+           MOVE  WK2-SET-GANP         TO  BM36-SET-GANP-D.              080710CM
+           MOVE  WK2-SET-KNGK         TO  BM36-SET-KNGK-D.              080710CM
+           MOVE  WK2-ZAN-KUTI         TO  BM36-ZAN-KUTI-D.              080710CM
+           MOVE  WK2-ZAN-GANP         TO  BM36-ZAN-GANP-D.              080710CM
+      *                                                                 080710CM
+           IF  O-KIJUN-YMD-3  =  W-KIJUN-YMD                            080710CM
+               WRITE    OUT-REC2  FROM    WK-EDIT2                      080710CM
+               ADD       1         TO     IXOUT-CNT2                    080710CM
+           END-IF.                                                      080710CM
+           INITIALIZE                 WK-OUT2.                          080710CM
+           INITIALIZE                 WK-EDIT2.                         080710CM
+      *                                                                 080710CM
+       BREAK2-1-EXIT.                                                   080710CM
+           EXIT.                                                        080710CM
+      ******* EDIT-1       **************************************/CAP/**080710CM
+      *                     EDIT-1 (BM36S)                             *080710CM
+      ******************************************************************080710CM
+       EDIT-PROC1 SECTION.                                              080710CM
+       EDIT-PROC1-START.                                                080710CM
+      *                                                                 080710CM
+           MOVE  BM36-FUND-CD         TO  BM36-FUND-CD-S.               080710CM
+           MOVE  BM36-SHOKEN-CD       TO  BM36-SHOKEN-CD-S.             080710CM
+           MOVE  BM36-KIJUN-YMD       TO  BM36-KIJUN-YMD-S.             080710CM
+           MOVE  BM36-SET-KUTI-RUI    TO  BM36-SET-KUTI-RUI-S.          080710CM
+           MOVE  BM36-SET-GANP-RUI    TO  BM36-SET-GANP-RUI-S.          080710CM
+           MOVE  BM36-SET-KNGK-RUI    TO  BM36-SET-KNGK-RUI-S.          080710CM
+           MOVE  BM36-ZAN-KUTI        TO  BM36-ZAN-KUTI-S.              080710CM
+           MOVE  BM36-ZAN-GANP        TO  BM36-ZAN-GANP-S.              080710CM
+      *                                                                 080710CM
+       EDIT-PROC1-EXIT.                                                 080710CM
+           EXIT.                                                        080710CM
+      ******* EDIT-2       **************************************/CAP/**080710CM
+      *                     EDIT-1 (BM36D)                             *080710CM
+      ******************************************************************080710CM
+       EDIT-PROC2 SECTION.                                              080710CM
+       EDIT-PROC2-START.                                                080710CM
+      *                                                                 080710CM
+           MOVE  WK2-SET-KUTI         TO  BM36-SET-KUTI-D.              080710CM
+           MOVE  WK2-SET-GANP         TO  BM36-SET-GANP-D.              080710CM
+           MOVE  WK2-SET-KNGK         TO  BM36-SET-KNGK-D.              080710CM
+           MOVE  WK2-ZAN-KUTI         TO  BM36-ZAN-KUTI-D.              080710CM
+           MOVE  WK2-ZAN-GANP         TO  BM36-ZAN-GANP-D.              080710CM
+      *                                                                 080710CM
+       EDIT-PROC2-EXIT.                                                 080710CM
+           EXIT.                                                        080710CM
+044500******* PROC-ID-9    **************************************/CAP/**        
+044600*                       PROC-ID-9                                *        
+044700******************************************************************        
+044800 PROC-ID-9 SECTION.                                                       
+044900 PROC-ID-9-START.                                                         
+045000     PERFORM READ-TR.                                                     
+045100 PROC-ID-9-EXIT.                                                          
+045200     EXIT.                                                                
+045300******* PROG-END     **************************************/CAP/**        
+045400*                       PROG-END                                 *        
+045500******************************************************************        
+045600 PROG-END SECTION.                                                        
+045700 PROG-END-START.                                                          
+      D    MOVE  "COVERAGE<IXBM110      PROG-END                 13  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           IF   ( FLG-DB-CONNECT = CNS-FLG-ON )
+           THEN
+      D    MOVE  "COVERAGE<IXBM110      PROG-END                 14  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+      *----------  コミット処理を行う（接続切断を含める）
+               EXEC  SQL  COMMIT  WORK  RELEASE  END-EXEC
+           END-IF.
+045800*     MOVE     'CL'     TO    IXMINT-SHORI-KBN.                            
+045900*     CALL     IXMINT   USING IXMINT-ARG.                                  
+046000     CLOSE    IXIN1                                                       
+046100              IXOUT.                                                      
+           CLOSE    IXOUT2.                                             080710CM
+046200     CALL     XUSKENSU                                                    
+046300              USING  XUSKENSU-ARG1 XUSKENSU-ARG2 XUSKENSU-ARG3.           
+046400 PROG-END-EXIT.                                                           
+046500     EXIT.                                                                
+      ******************************************************************
+      *    バッチ開始メッセージ出力
+      ******************************************************************
+       KAISI-MSG-RTN          SECTION.
+      D    MOVE  "COVERAGE<IXBM110      KAISI-MSG-RTN            15  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE  CNS-PROGID           TO  PGM-ID
+                                      OF  PARM-SCZC7010-INOUT
+           CALL  SCZC7010             USING  PARM-SCZC7010-INOUT
+           CONTINUE.
+       KAISI-MSG-EXIT.
+           EXIT.
+      ******************************************************************
+      *    バッチ終了メッセージ出力
+      ******************************************************************
+       SYURYOU-MSG-RTN        SECTION.
+      D    MOVE  "COVERAGE<IXBM110      SYURYOU-MSG-RTN          16  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE  CNS-PROGID           TO  PGM-ID
+                                      OF  PARM-SCZK7020-INOUT
+           MOVE  PARM-SCZC1170-RTNPKG
+                                      TO  PARM-SCZK7020-RTNPKG
+           CALL  SCZK7020             USING  PARM-SCZK7020-INOUT
+                                             PARM-SCZK7020-RTNPKG
+           CONTINUE.
+       SYURYOU-MSG-EXIT.
+           EXIT.
+      ******************************************************************
+      *    スケ管追付き初期化
+      ******************************************************************
+       AUTO-INIT-RTN          SECTION.
+      D    MOVE  "COVERAGE<IXBM110      AUTO-INIT-RTN            17  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+      *----------    SQLCODE初期化
+           MOVE    CNS-ORA-NORMAL     TO  SQLCODE
+      *----------    フラグエリアの初期化
+           INITIALIZE                 FLAG-AREA
+      *----------    ワークエリアの初期化
+           INITIALIZE                 WORK-DB-AREA
+      *----------    ホストエリアの初期化
+           INITIALIZE                 HST-AREA
+           INITIALIZE  PARM-SCZK7020-INOUT
+                       PARM-SCZK7020-RTNPKG
+                       PARM-SCZC7010-INOUT
+                       PARM-SCZK7100-INOUT
+                       PARM-SCZK7100-RTNPKG
+      *    -------  "==> バッチ開始メッセージ出力 <=="
+           PERFORM  KAISI-MSG-RTN
+      *----------    環境変数取得処理
+           PERFORM  KANKYO-HENSU-GET-RTN
+      *----------  バッチＤＢ接続情報取得ルーチンをCALL
+           PERFORM   SCZK7100-RTN
+      *----------    DBログオン処理
+           PERFORM  ORA-LOGON-RTN
+           CONTINUE.
+       AUTO-INIT-EXIT.
+           EXIT.
+      ******************************************************************
+      *    機能：環境変数取得処理
+      ******************************************************************
+       KANKYO-HENSU-GET-RTN   SECTION.
+      D    MOVE  "COVERAGE<IXBM110      KANKYO-HENSU-GET-RTN     18  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+      *----    "利用会社コードを環境変数から取得 START"
+           DISPLAY  CNS-KAISHA-CD  UPON  ENVIRONMENT-NAME
+           ACCEPT  WK-RIYO-CMP-CD  FROM  ENVIRONMENT-VALUE
+           ON EXCEPTION
+               MOVE  0                TO  DETAIL-RTN-CD
+                                      OF  PARM-SCZC1170-INOUT
+                   MOVE  CNS-POS-7    TO  ERR-POS
+                                      OF  PARM-SCZC1170-INOUT
+               PERFORM  ERROR-RTN
+           END-ACCEPT
+      *----    "*****  環境変数を取得  END *****"
+           CONTINUE.
+       KANKYO-HENSU-GET-EXIT.
+           EXIT.
+      ******************************************************************
+      *    バッチＤＢ接続情報取得ルーチンをCALL
+      ******************************************************************
+       SCZK7100-RTN           SECTION.
+      D    MOVE  "COVERAGE<IXBM110      SCZK7100-RTN             19  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE      WK-RIYO-CMP-CD   TO  RIYO-CMP-CD
+                                      OF  PARM-SCZK7100-INOUT
+           CALL      SCZK7100         USING  PARM-SCZK7100-INOUT
+                                             PARM-SCZK7100-RTNPKG
+           IF  RTN-CD  OF PARM-SCZK7100-RTNPKG
+               (COUNTER  OF PARM-SCZK7100-RTNPKG) = CNS-RTN-NORMAL THEN
+      D    MOVE  "COVERAGE<IXBM110      SCZK7100-RTN             20  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               CONTINUE
+           ELSE
+      D    MOVE  "COVERAGE<IXBM110      SCZK7100-RTN             21  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  0                TO  DETAIL-RTN-CD
+                                      OF  PARM-SCZC1170-INOUT
+               MOVE  PARM-SCZK7100-RTNPKG
+                                      TO  PARM-SCZC1170-RTNPKG
+                   MOVE  CNS-POS-8    TO  ERR-POS
+                                      OF  PARM-SCZC1170-INOUT
+               PERFORM  ERROR-RTN
+           END-IF
+           CONTINUE.
+       SCZK7100-EXT.
+           EXIT.
+      ******************************************************************
+      *    機能：Oracleログオン処理
+      ******************************************************************
+       ORA-LOGON-RTN          SECTION.
+      D    MOVE  "COVERAGE<IXBM110      ORA-LOGON-RTN            22  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE  DB-SETUZOKU-JYOUHOU  OF  PARM-SCZK7100-INOUT
+                                      TO  HST-ORA-CONNECT
+      *----------    Oracleログオン処理する
+           EXEC SQL CONNECT :HST-ORA-CONNECT  END-EXEC
+           IF   ( SQLCODE = CNS-ORA-NORMAL )
+           THEN
+      D    MOVE  "COVERAGE<IXBM110      ORA-LOGON-RTN            23  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+      *----------    DBログオンフラグ設定
+               MOVE  CNS-FLG-ON       TO  FLG-DB-CONNECT
+           ELSE
+      D    MOVE  "COVERAGE<IXBM110      ORA-LOGON-RTN            24  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  SQLCODE          TO  DETAIL-RTN-CD
+                                      OF  PARM-SCZC1170-INOUT
+                   MOVE  CNS-POS-9    TO  ERR-POS
+                                      OF  PARM-SCZC1170-INOUT
+               PERFORM  ERROR-RTN
+           END-IF
+           CONTINUE.
+       ORA-LOGON-EXIT.
+           EXIT.
+      ******************************************************************
+      *    機能：正常終了処理
+      ******************************************************************
+       END-RTN                SECTION.
+      D    MOVE  "COVERAGE<IXBM110      END-RTN                  25  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+      *----------    リターンパッケージセット
+           MOVE  CNS-RTN-NORMAL       TO  RTN-CD
+                                      OF  PARM-SCZC1170-INOUT
+           CALL  SCZC1170             USING  PARM-SCZC1170-INOUT
+                                             PARM-SCZC1170-RTNPKG
+           MOVE  CNS-SYUBETU-NORMAL   TO  ERR-SYUBETU
+                                      OF  PARM-SCZK7020-INOUT
+           PERFORM  SYURYOU-MSG-RTN
+           CONTINUE.
+       END-EXIT.
+           EXIT.
+      ******************************************************************
+      *    機能：エラー処理
+      ******************************************************************
+       ERROR-RTN              SECTION.
+      D    MOVE  "COVERAGE<IXBM110      ERROR-RTN                26  1>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+      *----------    ロールバック処理
+           IF   ( FLG-DB-CONNECT = CNS-FLG-ON )
+           THEN
+      D    MOVE  "COVERAGE<IXBM110      ERROR-RTN                27  1>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+             EXEC  SQL  ROLLBACK    RELEASE  END-EXEC
+             MOVE  CNS-FLG-OFF        TO  FLG-DB-CONNECT
+           END-IF
+      *----------    リターンパッケージセット
+           MOVE  CNS-PROGID           TO  ERR-PGM-ID
+                                      OF  PARM-SCZC1170-INOUT
+           MOVE  CNS-RTN-ERROR        TO  RTN-CD
+                                      OF  PARM-SCZC1170-INOUT
+           IF  DETAIL-RTN-CD          OF  PARM-SCZC1170-INOUT
+                                      NOT  =  ZERO
+           THEN
+      D    MOVE  "COVERAGE<IXBM110      ERROR-RTN                28  1>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  CNS-DETAIL-FLG-1
+                                      TO  DETAIL-RTN-CD-FLG
+                                      OF  PARM-SCZC1170-INOUT
+           ELSE
+      D    MOVE  "COVERAGE<IXBM110      ERROR-RTN                29  1>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  CNS-DETAIL-FLG-0
+                                      TO  DETAIL-RTN-CD-FLG
+                                      OF  PARM-SCZC1170-INOUT
+           END-IF
+           CALL  SCZC1170             USING  PARM-SCZC1170-INOUT
+                                             PARM-SCZC1170-RTNPKG
+      *----------  バッチ終了メッセージ出力ルーチンをCALL
+           MOVE  CNS-SYUBETU-ERROR           TO  ERR-SYUBETU
+                                             OF  PARM-SCZK7020-INOUT
+           PERFORM  SYURYOU-MSG-RTN
+           CONTINUE.
+       ERROR-EXIT.
+           STOP RUN 16.

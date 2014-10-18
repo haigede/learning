@@ -1,0 +1,1581 @@
+      ******************************************************************
+      * $Header$
+      ******************************************************************
+      *
+      * システムＩＤ   :  T-STAR
+      * システム名称   :  次期TSTARシステム
+      * プログラムＩＤ :  SCZY9001
+      * プログラム名称 :  単項目チェックルーチン
+      * 処理概要       :  単項目チェックを行う。
+      *
+      * 引数           :  なし
+      *
+      ******************************************************************
+      * 改訂日     担当         内容
+      * ---------- ------------ ----------------------------------------
+      * 2006/07/05 SCS.王イ     新規作成
+      * 2006/08/14 SCS.唐嫣嫣   エラーハンドリング対応(ログ出力追加)
+      * 2006/10/02 SCS.唐嫣嫣   入力データの桁数を500バイトに拡張の対応
+      * 2006/10/10 SCS.孫瑜俊   全角チェック時の処理修正対応
+      * 2008/02/01 SCS.董秋生   投資顧問の使用のため対応
+      * 2008/07/22 SCS.陳幸縁   9桁日付チェックの対応
+      ******************************************************************
+      *
+      ******************************************************************
+      *
+      *        見 出 し 部
+      *
+      ******************************************************************
+       IDENTIFICATION                  DIVISION.
+      *
+       PROGRAM-ID.                     SCZY9001 IS INITIAL PROGRAM.
+       AUTHOR.                         SCS-WANGWEI.
+       INSTALLATION.
+       DATE-WRITTEN.                   2006.07.05.
+       DATE-COMPILED.
+      *
+      ******************************************************************
+      *
+      *        環 境 部
+      *
+      ******************************************************************
+       ENVIRONMENT                     DIVISION.
+      *----- テスト終了時には、デバッグモードをコメント化する。
+       CONFIGURATION                   SECTION.
+       SOURCE-COMPUTER.
+      *SOURCE-COMPUTER.                HP WITH DEBUGGING MODE.
+      *----- 環境変数
+       SPECIAL-NAMES.
+           ENVIRONMENT-NAME  IS        ENV-NAME
+           ENVIRONMENT-VALUE IS        ENV-VALUE
+      *----- 必須チェック処理
+           CLASS  HISU-1     IS        X"09"
+                                       X"0A"
+                                       X"0C"
+                                       X"0D"
+                                       X"20"
+      *----- ASCⅡチェック処理
+           CLASS  ASC-2      IS        X"00"  THRU  X"7F"
+      *----- 半角チェック処理
+           CLASS  HAN-3      IS        X"20"  THRU  X"7E"
+                                       X"A1"  THRU  X"DF"
+                                       X"0D"
+                                       X"0A"
+      *----- 全角チェック処理
+           CLASS  ZEN-4      IS        X"00"  THRU  X"7F"
+                                       X"A1"  THRU  X"DF"
+      *----- 英字チェック処理
+           CLASS  EIJI-5     IS        X"41"  THRU  X"5A"
+                                       X"61"  THRU  X"7A"
+      *----- 数字チェック処理 （整数チェック処理  日付チェック処理）
+           CLASS  SUJI-6     IS        X"30"  THRU  X"39"
+      *----- 英数チェック処理
+           CLASS  EISUJI-7   IS        X"30"  THRU  X"39"
+                                       X"41"  THRU  X"5A"
+                                       X"61"  THRU  X"7A"
+      *----- 実数チェック処理
+           CLASS  JITU-10    IS        X"2E"
+                                       X"30"  THRU  X"39".
+      *
+      ******************************************************************
+      *
+      *        デ ー タ 部
+      *
+      ******************************************************************
+       DATA                            DIVISION.
+      ******************************************************************
+      *        作業場所節
+      ******************************************************************
+       WORKING-STORAGE                 SECTION.
+      ******************************************************************
+      *                共通ワーク エリア
+      ******************************************************************
+       01  COMMON-AREA.
+         05  SEQNO                     PIC  X(20).
+      ******************************************************************
+      *                ＣＯＰＹ句 エリア
+      ******************************************************************
+      *01  COPY-AREA.
+      *----- DISPLAY サブルーチン 変数宣言
+      *    COPY  "CSSD0001.CPY".
+      ******************************************************************
+      *                サブプログラムパラメータ エリア
+      ******************************************************************
+      *-----2006/10/10孫瑜俊  全角チェック時の処理修正対応
+      *サブプログラム_PSSB0030CBL（漢字コードAPI)のCOPY句
+      *01  PSSB0030CBL-ARG.
+      *    COPY  "CSSB0030.CPY".
+      *  05  SS-XXXX-BUF.
+      *    10  QS-XXXX-LNG             PIC  9(04).
+      *    10  XS-XXXX-DAT             PIC  X(1000).
+      ******************************************************************
+      *                ログ エリア
+      ******************************************************************
+      *    COPY  "CCTY0011.CPY".
+      ******************************************************************
+      *                コンスタント エリア
+      ******************************************************************
+       01  CNS-AREA.
+      *----- エラーフラグ
+         05  CNS-ON-OFF.
+           10  CNS-OFF                 PIC  X(01)  VALUE  "0".
+           10  CNS-ON                  PIC  X(01)  VALUE  "1".
+      *----- プログラム名称
+         05  CNS-PGM-NAME              PIC  X(08)  VALUE  "SCZY9001".
+         05  CNS-ERR-RTNCD.
+           10  CNS-NORMAL              PIC  X(01)  VALUE  "0".
+           10  CNS-ERROR-1             PIC  X(01)  VALUE  "1".
+           10  CNS-ERROR-2             PIC  X(01)  VALUE  "2".
+           10  CNS-ERROR-9             PIC  X(01)  VALUE  "9".
+      ******************************************************************
+      *                フラグ  エリア
+      ******************************************************************
+       01  FLG-AREA.
+         05  FLG-ERR                   PIC  X(01).
+         05  FLG-CHK-G                 PIC  X(01).
+         05  FLG-CHK-GE                PIC  X(01).
+         05  FLG-CHK-L                 PIC  X(01).
+         05  FLG-CHK-LE                PIC  X(01).
+         05  FLG-CHK-KETA              PIC  X(01).
+         05  FLG-GETUMATU              PIC  X(01).
+         05  FLG-ERR-DSP               PIC  X(01).
+      ******************************************************************
+      *                ワーク  エリア
+      ******************************************************************
+       01  WK-AREA.
+         05  WK-DATA-LEN               PIC  9(03).
+         05  WK-DATA-LEN-TMP           PIC  9(03).
+         05  WK-DATA-LEN1              PIC  9(03).
+         05  WK-DATA-LEN2              PIC  9(03).
+         05  WK-KETA-CHK-LEN           PIC  9(03).
+      *-----SCS.唐 2006/10/02 入力データの桁数を500バイトに拡張の対応 START
+      *   05  WK-IN-CHK-DATA            PIC  X(256).
+      *   05  WK-IN-CHK-DATA1           PIC  X(256).
+      *   05  WK-IN-CHK-DATA2           PIC  X(256).
+      *   05  WK-IN-CHK-DATA3           PIC  X(256).
+      *   05  WK-SUTI-HANI-G-X          PIC  X(256).
+      *   05  WK-SUTI-HANI-GE-X         PIC  X(256).
+      *   05  WK-SUTI-HANI-L-X          PIC  X(256).
+      *   05  WK-SUTI-HANI-LE-X         PIC  X(256).
+         05  WK-IN-CHK-DATA            PIC  X(500).
+         05  WK-IN-CHK-DATA1           PIC  X(500).
+         05  WK-IN-CHK-DATA2           PIC  X(500).
+         05  WK-IN-CHK-DATA3           PIC  X(500).
+         05  WK-SUTI-HANI-G-X          PIC  X(500).
+         05  WK-SUTI-HANI-GE-X         PIC  X(500).
+         05  WK-SUTI-HANI-L-X          PIC  X(500).
+         05  WK-SUTI-HANI-LE-X         PIC  X(500).
+      *-----SCS.唐 2006/10/02 入力データの桁数を500バイトに拡張の対応 END
+         05  WK-IDX1                   PIC  9(03).
+         05  WK-SYOUSU                 PIC  9(03).
+         05  WK-HIDUKE-X               PIC  X(08).
+         05  WK-HIDUKE-YYYY            PIC  9(04).
+         05  WK-GETUMATU               PIC  X(02).
+         05  WK-AKINAI-1               PIC  9(03).
+         05  WK-JYOUYO-1               PIC  9(03).
+         05  WK-AKINAI-2               PIC  9(03).
+         05  WK-JYOUYO-2               PIC  9(03).
+         05  WK-AKINAI-3               PIC  9(03).
+         05  WK-JYOUYO-3               PIC  9(03).
+      *-----WK-CHECK-FLG
+         05  WK-CHECK-FLG              PIC  X(01).
+      *-----WK-CHK-DATA-CH
+         05  WK-CHK-DATA-CH.
+           10  WK-DATA-CH-1            PIC  X(01).
+           10  WK-DATA-CH-2.
+             15  WK-LEN2               PIC  9(03).
+             15  WK-VALUE2             PIC  X(100).
+           10  WK-DATA-CH-3.
+             15  WK-LEN3               PIC  9(03).
+             15  WK-VALUE3             PIC  X(100).
+      *-----WK-SUTI-HANI-CH
+         05  WK-SUTI-HANI-CH.
+           10  WK-SUTI-HANI-1          PIC  X(01).
+           10  WK-SUTI-HANI-2.
+             15  WK-SUTI-LEN2          PIC  9(03).
+             15  WK-SUTI-VALUE2        PIC  X(100).
+           10  WK-SUTI-HANI-3.
+             15  WK-SUTI-LEN3          PIC  9(03).
+             15  WK-SUTI-VALUE3        PIC  X(100).
+      *-----WK-IN-DATA-CH
+         05  WK-IN-DATA-CH.
+           10  WK-IN-DATA-1            PIC  X(01).
+           10  WK-IN-DATA-2.
+             15  WK-DATA-LEN-2         PIC  9(03).
+             15  WK-DATA-VALUE2        PIC  X(100).
+           10  WK-IN-DATA-3.
+             15  WK-DATA-LEN-3         PIC  9(03).
+             15  WK-DATA-VALUE3        PIC  X(100).
+         05  WK-LEN-NUMBER             PIC  9(03).
+         05  WK-LEN-NUMBER1            PIC  9(03).
+         05  WK-CHK-DATA               PIC  X(500).
+         05  WK-CHK-DATA-TEMP          PIC  X(500).
+      *----- 全プロジェクト共通のPL用メッセージコードTBL追加ルーチン用
+      *  05  MSG-ARG.
+      *    COPY  "CCTY0013.CPY".
+      ******************************************************************
+      *        連絡節
+      ******************************************************************
+       LINKAGE                         SECTION.
+      *----- サブルーチンＩＦ項目
+       01  AIFA-HDR.
+           COPY  "WOMCMAIFA.CPY".
+       01  USER-ATTR-HDR.
+           COPY  "CZCOMMONHEADER.cpy".
+      *----- 入出力パラメータ
+       01  SCZY9001-ARG.
+           COPY  "SCZY9001.cpy".
+      *
+      ******************************************************************
+      *
+      *        手 続 き 部
+      *
+      ******************************************************************
+       PROCEDURE                       DIVISION
+           USING  AIFA-HDR
+                  USER-ATTR-HDR
+                  SCZY9001-ARG.
+      ******************************************************************
+      *    (0) メイン処理
+      ******************************************************************
+       MAIN-PRC-RTN                    SECTION.
+      *    MOVE  "PS"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN
+      D    DISPLAY  "*************************************************"
+      D    DISPLAY  "*****************SCZY9001  START*****************"
+      D    DISPLAY  "*************************************************"
+      D    DISPLAY  "MAIN-PRC-RTN"
+      *----- 初期処理
+           PERFORM  INIT-RTN
+      *----- 単体項目チェック処理
+           IF  FLG-ERR  =  CNS-OFF  THEN
+             PERFORM  TANTAI-CHK-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- 関連項目チェック処理
+           IF  FLG-ERR  =  CNS-OFF  THEN
+             PERFORM  KANREN-CHK-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- 業務処理
+           IF  FLG-ERR  =  CNS-OFF  THEN
+             PERFORM  GYOMU-RTN
+           ELSE
+             CONTINUE
+           END-IF
+      *----- 終了処理
+           PERFORM  END-RTN.
+      *    MOVE  "PE"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "MAIN-PRC-RTN"
+      D    DISPLAY  "*************************************************"
+      D    DISPLAY  "*****************SCZY9001   END *****************"
+      D    DISPLAY  "*************************************************".
+       MAIN-PRC-EXT.
+           EXIT PROGRAM.
+      ******************************************************************
+      *    (1) 初期処理
+      ******************************************************************
+       INIT-RTN                        SECTION.
+      *    MOVE  "SSINIT-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN
+      D    DISPLAY  "INIT-RTN"
+      *    MOVE  "1"  TO  SEQNO
+      D    DISPLAY  "初期化処理前".
+      D    DISPLAY  "AIFA-HDR =[" AIFA-HDR "]".
+      D    DISPLAY  "USER-ATTR-HDR =[" USER-ATTR-HDR "]".
+      D    DISPLAY  "SCZY9001-ARG-IN =[" SCZY9001-ARG-IN "]".
+      D    DISPLAY  "SCZY9001-ARG-OUT =[" SCZY9001-ARG-OUT "]".
+      *----- フラグの初期化
+           MOVE  CNS-OFF  TO  FLG-ERR.
+           MOVE  CNS-OFF  TO  FLG-CHK-G.
+           MOVE  CNS-OFF  TO  FLG-CHK-GE.
+           MOVE  CNS-OFF  TO  FLG-CHK-L.
+           MOVE  CNS-OFF  TO  FLG-CHK-LE.
+           MOVE  CNS-OFF  TO  FLG-CHK-KETA.
+           MOVE  CNS-OFF  TO  FLG-GETUMATU.
+           MOVE  CNS-OFF  TO  FLG-ERR-DSP.
+      *----- ユーザー初期処理
+           PERFORM  UINIT-RTN.
+      D    DISPLAY  "初期化処理後".
+      D    DISPLAY  "FLG-ERR      =[" FLG-ERR "]".
+      D    DISPLAY  "FLG-CHK-G    =[" FLG-CHK-G "]".
+      D    DISPLAY  "FLG-CHK-GE   =[" FLG-CHK-GE "]".
+      D    DISPLAY  "FLG-CHK-L    =[" FLG-CHK-L "]".
+      D    DISPLAY  "FLG-CHK-LE   =[" FLG-CHK-LE "]".
+      D    DISPLAY  "FLG-CHK-KETA =[" FLG-CHK-KETA "]".
+      D    DISPLAY  "FLG-GETUMATU =[" FLG-GETUMATU "]".
+      D    DISPLAY  "WK-AREA =[" WK-AREA "]".
+      D    DISPLAY  "SCZY9001-ARG-IN =[" SCZY9001-ARG-IN "]".
+      D    DISPLAY  "SCZY9001-ARG-OUT =[" SCZY9001-ARG-OUT "]".
+      D    DISPLAY  "RTN-CD OF SCZY9001-ARG =["
+      D                               RTN-CD OF SCZY9001-ARG "]".
+      *----- 初期処理終了
+      *    MOVE  "SEINIT-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "INIT-RTN".
+       INIT-EXT.
+           EXIT.
+      ******************************************************************
+      *    (2) 単体項目チェック処理制御
+      ******************************************************************
+       TANTAI-CHK-RTN                  SECTION.
+      *    MOVE  "SSTANTAI-CHK-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN
+      D    DISPLAY  "TANTAI-CHK-RTN"
+      *    MOVE  "2"  TO  SEQNO
+      *----- 単体項目チェック処理１
+           IF  FLG-ERR  =  CNS-OFF  THEN
+             PERFORM  TANTAI-CHK-1-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 単体項目チェック処理制御終了
+      *    MOVE  "SETANTAI-CHK-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "TANTAI-CHK-RTN".
+       TANTAI-CHK-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3) 関連項目チェック処理制御
+      ******************************************************************
+       KANREN-CHK-RTN                  SECTION.
+      *    MOVE  "SSKANREN-CHK-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN
+      D    DISPLAY  "KANREN-CHK-RTN"
+      *    MOVE  "3"  TO  SEQNO
+      *----- 関連項目チェック処理１
+           IF  FLG-ERR  =  CNS-OFF  THEN
+             PERFORM  KANREN-CHK-1-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 関連項目チェック処理制御終了
+      *    MOVE  "SEKANREN-CHK-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "KANREN-CHK-RTN".
+       KANREN-CHK-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4) 業務処理制御
+      ******************************************************************
+       GYOMU-RTN                       SECTION.
+      *    MOVE  "SSGYOMU-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN
+      D    DISPLAY  "GYOMU-RTN"
+      *    MOVE  "4"  TO  SEQNO
+      *----- 業務処理１
+           IF  FLG-ERR  =  CNS-OFF  THEN
+             PERFORM  GYOMU-1-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 業務処理制御終了
+      *    MOVE  "SEGYOMU-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-RTN".
+       GYOMU-EXT.
+           EXIT.
+      ******************************************************************
+      *    (1-1) ユーザー初期処理
+      ******************************************************************
+       UINIT-RTN                       SECTION.
+      *    MOVE  "SSUINIT-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN
+      D    DISPLAY  "UINIT-RTN"
+      *    MOVE  "1-1"  TO  SEQNO.
+      *----- ワークエリアを初期化する
+           MOVE  SPACE  TO  WK-AREA.
+           INITIALIZE       WK-AREA.
+      *----- I/Fエリアのアウト領域を初期化する
+           MOVE  SPACE  TO  SCZY9001-ARG-OUT.
+           INITIALIZE       SCZY9001-ARG-OUT.
+      *----- I/Fエリアのリターンコードに"0"(正常)を設定する
+           MOVE  CNS-NORMAL   TO  RTN-CD OF SCZY9001-ARG.
+      *----- ユーザ初期処理終了
+      *    MOVE  "SEUINIT-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "UINIT-RTN".
+       UINIT-EXT.
+           EXIT.
+      ******************************************************************
+      *    (2-1) 単体項目チェック処理１
+      ******************************************************************
+       TANTAI-CHK-1-RTN                SECTION.
+      *    MOVE  "SSTANTAI-CHK-1-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "TANTAI-CHK-1-RTN"
+      *    MOVE  "2-1"  TO  SEQNO.
+      *----- 単体項目チェック処理１終了
+           IF (( DATA-LEN = 0 )
+      *-----SCS.唐 2006/10/02 入力データの桁数を500バイトに拡張の対応 START
+      *      OR ( DATA-LEN  > 256 )) THEN
+             OR ( DATA-LEN  > 500 )) THEN
+      *-----SCS.唐 2006/10/02 入力データの桁数を500バイトに拡張の対応 END
+                 MOVE  CNS-ERROR-1  TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  CNS-ON       TO  FLG-ERR
+           ELSE
+                 CONTINUE
+           END-IF.
+      *    MOVE  "SETANTAI-CHK-1-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "TANTAI-CHK-1-RTN".
+       TANTAI-CHK-1-EXT.
+           EXIT.
+      ******************************************************************
+      *    (3-1) 関連項目チェック処理１
+      ******************************************************************
+       KANREN-CHK-1-RTN                SECTION.
+      *    MOVE  "SSKANREN-CHK-1-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "KANREN-CHK-1-RTN"
+      *    MOVE  "3-1"  TO  SEQNO.
+      *----- 関連項目チェック処理１終了
+      *    MOVE  "SEKANREN-CHK-1-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "KANREN-CHK-1-RTN".
+       KANREN-CHK-1-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1) 業務処理１
+      ******************************************************************
+       GYOMU-1-RTN                     SECTION.
+      *    MOVE  "SSGYOMU-1-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN
+      D    DISPLAY  "GYOMU-1-RTN"
+      *    MOVE  "4-1"  TO  SEQNO.
+      D    DISPLAY  "HISU-CHK =[" HISU-CHK "]".
+      D    DISPLAY  "ASC-CHK  =[" ASC-CHK "]".
+      D    DISPLAY  "HAN-CHK  =[" HAN-CHK "]".
+      D    DISPLAY  "ZEN-CHK  =[" ZEN-CHK "]".
+      D    DISPLAY  "EIJI-CHK =[" EIJI-CHK "]".
+      D    DISPLAY  "SUJI-CHK =[" SUJI-CHK "]".
+      D    DISPLAY  "EISUJI-CHK =[" EISUJI-CHK "]".
+      D    DISPLAY  "HIDUKE-CHK =[" HIDUKE-CHK "]".
+      D    DISPLAY  "SEI-CHK  =[" SEI-CHK "]".
+      D    DISPLAY  "JITU-CHK =[" JITU-CHK "]".
+      D    DISPLAY  "SUTI-HANI-G  =[" SUTI-HANI-G "]".
+      D    DISPLAY  "SUTI-HANI-GE =[" SUTI-HANI-GE "]".
+      D    DISPLAY  "SUTI-HANI-L  =[" SUTI-HANI-L "]".
+      D    DISPLAY  "SUTI-HANI-LE =[" SUTI-HANI-LE "]".
+      D    DISPLAY  "KETA-LE  =[" KETA-LE "]".
+      D    DISPLAY  "KETA-E   =[" KETA-E "]".
+      *----- チェック前処理
+           IF  FLG-ERR  =  CNS-OFF  THEN
+      D        DISPLAY CNS-PGM-NAME " チェック前処理開始"
+      D        DISPLAY  "DATA-LEN =[" DATA-LEN "]"
+      *        COMPUTE  WK-DATA-LEN =
+      *        FUNCTION STORED-CHAR-LENGTH(IN-CHK-DATA)
+               MOVE  500   TO  WK-DATA-LEN
+               PERFORM  UNTIL ( IN-CHK-DATA(WK-DATA-LEN:1)  NOT
+                         =  SPACE )
+                         OR  ( WK-DATA-LEN  =  ZERO )
+                 COMPUTE  WK-DATA-LEN  =  WK-DATA-LEN  -  1
+               END-PERFORM
+               IF  WK-DATA-LEN  = 0  THEN
+                   IF  HISU-CHK = "1"  THEN
+                       MOVE  CNS-ERROR-2  TO  RTN-CD OF SCZY9001-ARG
+                       MOVE  "01"    TO  ERR-NAIYOU
+                       MOVE  CNS-ON  TO  FLG-ERR
+                   ELSE
+                       GO TO  GYOMU-1-EXT
+                   END-IF
+               ELSE
+                   IF  WK-DATA-LEN  > DATA-LEN  THEN
+                       MOVE  WK-DATA-LEN  TO  WK-DATA-LEN-TMP
+                       MOVE  DATA-LEN  TO  WK-DATA-LEN
+                   ELSE
+                       CONTINUE
+                   END-IF
+                   MOVE  IN-CHK-DATA(1:WK-DATA-LEN)  TO  WK-IN-CHK-DATA
+               END-IF
+      D        DISPLAY  "WK-DATA-LEN =[" WK-DATA-LEN "]"
+      D        DISPLAY  "WK-DATA-LEN-TMP =[" WK-DATA-LEN-TMP "]"
+      D        DISPLAY  "WK-IN-CHK-DATA =[" WK-IN-CHK-DATA "]"
+      D        DISPLAY CNS-PGM-NAME " チェック前処理終了"
+      *----- チェック前処理終了
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 必須チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( HISU-CHK =  "1" )  THEN
+             PERFORM  GYOMU-1-1-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- ASCⅡチェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( ASC-CHK  =  "1" )  THEN
+             PERFORM  GYOMU-1-2-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 半角チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( HAN-CHK  =  "1" )  THEN
+             PERFORM  GYOMU-1-3-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 全角チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( ZEN-CHK  =  "1" )  THEN
+             PERFORM  GYOMU-1-4-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 英字チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( EIJI-CHK = "1" )  THEN
+             PERFORM  GYOMU-1-5-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 数字チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( SUJI-CHK = "1" )  THEN
+             PERFORM  GYOMU-1-6-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 英数チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( EISUJI-CHK = "1" )  THEN
+             PERFORM  GYOMU-1-7-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 日付チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( HIDUKE-CHK = "1" )  THEN
+             PERFORM  GYOMU-1-8-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 整数チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( SEI-CHK  = "1" )  THEN
+             PERFORM  GYOMU-1-9-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 実数チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( JITU-CHK  = "1" )  THEN
+             PERFORM  GYOMU-1-10-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 数値範囲（G）チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+      *     AND ( SUTI-HANI-G  NOT = -999999999999999.999 )  THEN
+            AND ( SUTI-HANI-G  NOT = SPACE )  THEN
+             PERFORM  GYOMU-1-11-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 数値範囲（GE）チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+      *     AND ( SUTI-HANI-GE  NOT = -999999999999999.999 )  THEN
+            AND ( SUTI-HANI-GE  NOT = SPACE )  THEN
+             PERFORM  GYOMU-1-12-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 数値範囲（L）チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+      *     AND ( SUTI-HANI-L  NOT = +999999999999999.999 )  THEN
+            AND ( SUTI-HANI-L  NOT = SPACE )  THEN
+             PERFORM  GYOMU-1-13-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 数値範囲（LE）チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+      *     AND ( SUTI-HANI-LE  NOT = +999999999999999.999 )  THEN
+            AND ( SUTI-HANI-LE  NOT = SPACE )  THEN
+             PERFORM  GYOMU-1-14-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 桁数（LE）チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( KETA-LE NOT = 999 )  THEN
+             PERFORM  GYOMU-1-15-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 桁数（E）チェック処理
+           IF   ( FLG-ERR  =  CNS-OFF )
+            AND ( KETA-E  NOT = 999 )  THEN
+             PERFORM  GYOMU-1-16-RTN
+           ELSE
+             CONTINUE
+           END-IF.
+      *----- 業務処理１終了
+      *    MOVE  "SEGYOMU-1-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-RTN".
+       GYOMU-1-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-1) 必須チェック処理
+      ******************************************************************
+       GYOMU-1-1-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-1-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-1-RTN"
+      *    MOVE  "4-1-1"     TO  SEQNO.
+           IF  WK-IN-CHK-DATA(1:WK-DATA-LEN)  IS  HISU-1  THEN
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "01"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           ELSE
+               CONTINUE
+           END-IF.
+      *----- 必須チェック処理終了
+      *    MOVE  "SEGYOMU-1-1-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-1-RTN".
+       GYOMU-1-1-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-2) ASCⅡチェック処理
+      ******************************************************************
+       GYOMU-1-2-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-2-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-2-RTN"
+      *    MOVE  "4-1-2"     TO  SEQNO.
+           IF  WK-IN-CHK-DATA(1:WK-DATA-LEN)  IS  ASC-2  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "02"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           END-IF.
+      *----- ASCⅡチェック処理終了
+      *    MOVE  "SEGYOMU-1-2-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-2-RTN".
+       GYOMU-1-2-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-3) 半角チェック処理
+      ******************************************************************
+       GYOMU-1-3-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-3-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-3-RTN"
+      *    MOVE  "4-1-3"     TO  SEQNO.
+           IF  WK-IN-CHK-DATA(1:WK-DATA-LEN)  IS  HAN-3  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "03"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           END-IF.
+      *----- 半角チェック処理終了
+      *    MOVE  "SEGYOMU-1-3-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-3-RTN".
+       GYOMU-1-3-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-4) 全角チェック処理
+      ******************************************************************
+       GYOMU-1-4-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-4-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-4-RTN"
+      *-----2008/02/01董秋生  投資顧問の使用のため対応          START
+      *-----2006/10/10孫瑜俊  全角チェック時の処理修正対応      START
+      *
+      *----- チェック対象の漢字をセット
+      *    DISPLAY  "ワークチェックデータ:[" WK-IN-CHK-DATA "]".
+      *    DISPLAY  "ワークチェックデータ長:[" WK-DATA-LEN "]".
+      *    MOVE  WK-IN-CHK-DATA    TO  XS-XXXX-DAT.
+      *    MOVE  WK-DATA-LEN       TO  QS-XXXX-LNG.
+      *    DISPLAY  "XC-SB30-CDCK:["  XC-SB30-CDCK "]".
+      *    DISPLAY   "SC-SB30-REQ:["   SC-SB30-REQ  "]".
+      *    DISPLAY   "SS-XXXX-BUF:["   SS-XXXX-BUF  "]".
+      *----- 漢字コードチェックハンドラ起動
+      *    CALL  XC-SB30-CDCK      USING  SC-SB30-REQ
+      *                                   SS-XXXX-BUF.
+      *
+      *    EVALUATE  QC-SB30-RC1  OF  SC-SB30-RC
+      *        WHEN  CNS-NORMAL
+      *            CONTINUE
+      *        WHEN  CNS-ERROR-9
+      *            MOVE  CNS-ERROR-2    TO  RTN-CD OF SCZY9001-ARG
+      *            MOVE  "04"    TO  ERR-NAIYOU
+      *            MOVE  CNS-ON  TO  FLG-ERR
+      *        WHEN  OTHER
+      *            MOVE  CNS-ERROR-9    TO  RTN-CD OF SCZY9001-ARG
+      *            MOVE  CNS-ON  TO  FLG-ERR
+      *            PERFORM  LOG-OUT-W-RTN
+      *    END-EVALUATE.
+      *-----2006/10/10孫瑜俊  全角チェック時の処理修正対応   END
+      *
+      *    MOVE  "4-1-4"  TO  SEQNO.
+           MOVE  1  TO  WK-IDX1.
+           PERFORM  UNTIL  ( WK-IDX1 >  WK-DATA-LEN )
+                       OR  ( FLG-ERR = CNS-ON )
+             IF  WK-IN-CHK-DATA(WK-IDX1:1)  IS  ZEN-4  THEN
+                 IF  WK-IN-CHK-DATA(WK-IDX1:1) = X"0D"  OR  X"0A"  THEN
+                     COMPUTE  WK-IDX1 = WK-IDX1 + 1
+                 ELSE
+                     MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+                     MOVE  "04"    TO  ERR-NAIYOU
+                     MOVE  CNS-ON  TO  FLG-ERR
+                 END-IF
+             ELSE
+                 COMPUTE  WK-IDX1 = WK-IDX1 + 2
+             END-IF
+           END-PERFORM.
+      *-----2008/02/01董秋生  投資顧問の使用のため対応        END
+      *----- 全角チェック処理終了
+      *    MOVE  "SEGYOMU-1-4-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-4-RTN".
+       GYOMU-1-4-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-5) 英字チェック処理
+      ******************************************************************
+       GYOMU-1-5-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-5-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-5-RTN"
+      *    MOVE  "4-1-5"     TO  SEQNO.
+           IF  WK-IN-CHK-DATA(1:WK-DATA-LEN)  IS  EIJI-5  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "05"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           END-IF.
+      *----- 英字チェック処理終了
+      *    MOVE  "SEGYOMU-1-5-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-5-RTN".
+       GYOMU-1-5-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-6) 数字チェック処理
+      ******************************************************************
+       GYOMU-1-6-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-6-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-6-RTN"
+      *    MOVE  "4-1-6"     TO  SEQNO.
+           IF  WK-IN-CHK-DATA(1:WK-DATA-LEN)  IS  SUJI-6  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "06"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           END-IF.
+      *----- 数字チェック処理終了
+      *    MOVE  "SEGYOMU-1-6-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-6-RTN".
+       GYOMU-1-6-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-7) 英数チェック処理
+      ******************************************************************
+       GYOMU-1-7-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-7-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-7-RTN"
+      *    MOVE  "4-1-7"     TO  SEQNO.
+           IF  WK-IN-CHK-DATA(1:WK-DATA-LEN)  IS  EISUJI-7  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "07"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           END-IF.
+      *----- 英数チェック処理終了
+      *    MOVE  "SEGYOMU-1-7-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-7-RTN".
+       GYOMU-1-7-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-8) 日付チェック処理
+      ******************************************************************
+       GYOMU-1-8-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-8-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-8-RTN".
+      *    MOVE  "4-1-8"  TO  SEQNO.
+           IF  WK-DATA-LEN  = 8  THEN
+               MOVE  WK-IN-CHK-DATA  TO  WK-HIDUKE-X
+           ELSE
+               IF   ( WK-DATA-LEN  = 10 )
+                   AND ( WK-IN-CHK-DATA(5:1) = "/" )
+                AND ( WK-IN-CHK-DATA(8:1) = "/" )  THEN
+                   MOVE  WK-IN-CHK-DATA(1:4)  TO  WK-HIDUKE-X(1:4)
+                   MOVE  WK-IN-CHK-DATA(6:2)  TO  WK-HIDUKE-X(5:2)
+                   MOVE  WK-IN-CHK-DATA(9:2)  TO  WK-HIDUKE-X(7:2)
+               ELSE
+      *-----SCS.陳 2008/07/22 9桁日付チェックの対応 START
+                   IF  WK-DATA-LEN  = 9
+                       AND (WK-IN-CHK-DATA(1:1) = "+"  OR  "-") THEN
+                       MOVE  WK-IN-CHK-DATA(2:8)  TO  WK-HIDUKE-X
+                   ELSE
+                       MOVE  CNS-ERROR-2      TO  RTN-CD OF SCZY9001-ARG
+                       MOVE  "08"     TO  ERR-NAIYOU
+                       MOVE   CNS-ON  TO  FLG-ERR
+                       GO  TO  GYOMU-1-8-EXT
+                   END-IF
+      *-----SCS.陳 2008/07/22 9桁日付チェックの対応 END
+               END-IF
+           END-IF.
+      *----- ワーク日付が数字の場合
+           IF  WK-HIDUKE-X  IS  SUJI-6  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2      TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "08"     TO  ERR-NAIYOU
+               MOVE   CNS-ON  TO  FLG-ERR
+               GO  TO  GYOMU-1-8-EXT
+           END-IF.
+      *----- ワーク日付（年）チェック
+      *D    DISPLAY  "WK-HIDUKE-9 =[" WK-HIDUKE-9 "]".
+           IF   ( WK-HIDUKE-X(1:4) < "0001" )
+            OR  ( WK-HIDUKE-X(1:4) > "9999" )  THEN
+                MOVE  CNS-ERROR-2      TO  RTN-CD OF SCZY9001-ARG
+                MOVE  "08"     TO  ERR-NAIYOU
+                MOVE   CNS-ON  TO  FLG-ERR
+                GO  TO  GYOMU-1-8-EXT
+           ELSE
+               CONTINUE
+           END-IF.
+      *----- ワーク日付（月）チェック
+           IF   ( WK-HIDUKE-X(5:2) < "01" )
+            OR  ( WK-HIDUKE-X(5:2) > "12" )  THEN
+                MOVE  CNS-ERROR-2      TO  RTN-CD OF SCZY9001-ARG
+                MOVE  "08"     TO  ERR-NAIYOU
+                MOVE   CNS-ON  TO  FLG-ERR
+                GO  TO  GYOMU-1-8-EXT
+           ELSE
+               CONTINUE
+           END-IF.
+      *----- ワーク日付（日）チェック
+           EVALUATE  WK-HIDUKE-X(5:2)
+               WHEN  "01"
+               WHEN  "03"
+               WHEN  "05"
+               WHEN  "07"
+               WHEN  "08"
+               WHEN  "10"
+               WHEN  "12"
+                   MOVE  "31"  TO  WK-GETUMATU
+               WHEN  "04"
+               WHEN  "06"
+               WHEN  "09"
+               WHEN  "11"
+                   MOVE  "30"  TO  WK-GETUMATU
+               WHEN  "02"
+                   MOVE  WK-HIDUKE-X(1:4)  TO  WK-HIDUKE-YYYY
+                   DIVIDE  WK-HIDUKE-YYYY  BY  400  GIVING
+                           WK-AKINAI-1  REMAINDER  WK-JYOUYO-1
+      D            DISPLAY  "WK-JYOUYO-1 =[" WK-JYOUYO-1 "]"
+                   IF  WK-JYOUYO-1 = 0  THEN
+                       MOVE  "29"    TO  WK-GETUMATU
+                       MOVE  CNS-ON  TO  FLG-GETUMATU
+                   ELSE
+                       CONTINUE
+                   END-IF
+                   IF  FLG-GETUMATU = CNS-OFF  THEN
+                       DIVIDE  WK-HIDUKE-YYYY  BY  100  GIVING
+                               WK-AKINAI-2  REMAINDER  WK-JYOUYO-2
+      D                DISPLAY  "WK-JYOUYO-2 =[" WK-JYOUYO-2 "]"
+                       IF  WK-JYOUYO-2 = 0  THEN
+                           MOVE  "28"    TO  WK-GETUMATU
+                           MOVE  CNS-ON  TO  FLG-GETUMATU
+                       ELSE
+                           CONTINUE
+                       END-IF
+                   ELSE
+                       CONTINUE
+                   END-IF
+                   IF  FLG-GETUMATU = CNS-OFF  THEN
+                       DIVIDE  WK-HIDUKE-YYYY  BY  4  GIVING
+                               WK-AKINAI-3  REMAINDER  WK-JYOUYO-3
+      D                DISPLAY  "WK-JYOUYO-3 =[" WK-JYOUYO-3 "]"
+                       IF  WK-JYOUYO-3 = 0  THEN
+                           MOVE  "29"  TO  WK-GETUMATU
+                           MOVE  CNS-ON  TO  FLG-GETUMATU
+                       ELSE
+                           CONTINUE
+                       END-IF
+                   ELSE
+                       CONTINUE
+                   END-IF
+                   IF  FLG-GETUMATU = CNS-OFF  THEN
+                       MOVE  "28"  TO  WK-GETUMATU
+                   ELSE
+                       CONTINUE
+                   END-IF
+      D            DISPLAY  "WK-GETUMATU =[" WK-GETUMATU "]"
+               WHEN  OTHER
+                   CONTINUE
+           END-EVALUATE.
+           IF   ( WK-HIDUKE-X(7:2) < "01" )
+            OR  ( WK-HIDUKE-X(7:2) > WK-GETUMATU )  THEN
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "08"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           ELSE
+               CONTINUE
+           END-IF.
+      *----- 日付チェック処理終了
+      *    MOVE  "SEGYOMU-1-8-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-8-RTN".
+       GYOMU-1-8-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-9) 整数チェック処理
+      ******************************************************************
+       GYOMU-1-9-RTN                   SECTION.
+      *    MOVE  "SSGYOMU-1-9-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-9-RTN"
+      *    MOVE  "4-1-9"  TO  SEQNO.
+           MOVE  WK-DATA-LEN  TO  WK-DATA-LEN1.
+           IF  WK-IN-CHK-DATA(1:1) = "+"  OR  "-"  THEN
+               IF  WK-DATA-LEN1 = 1 THEN
+                   MOVE   CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+                   MOVE  "09"    TO  ERR-NAIYOU
+                   MOVE  CNS-ON  TO  FLG-ERR
+                   GO TO  GYOMU-1-9-EXT
+               ELSE
+      *-----SCS.唐 2006/10/02 入力データの桁数を500バイトに拡張の対応 START
+      *             MOVE  WK-IN-CHK-DATA(2:255)  TO  WK-IN-CHK-DATA1
+                   MOVE  WK-IN-CHK-DATA(2:)  TO  WK-IN-CHK-DATA1
+      *-----SCS.唐 2006/10/02 入力データの桁数を500バイトに拡張の対応 END
+                   COMPUTE  WK-DATA-LEN1 = WK-DATA-LEN1 - 1
+               END-IF
+           ELSE
+               MOVE  WK-IN-CHK-DATA TO  WK-IN-CHK-DATA1
+           END-IF.
+           IF  WK-IN-CHK-DATA1(1:WK-DATA-LEN1)  IS  SUJI-6  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "09"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           END-IF.
+      *----- 整数チェック処理終了
+      *    MOVE  "SEGYOMU-1-9-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-9-RTN".
+       GYOMU-1-9-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-10) 実数チェック処理
+      ******************************************************************
+       GYOMU-1-10-RTN                  SECTION.
+      *    MOVE  "SSGYOMU-1-10-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-10-RTN"
+      *    MOVE  "4-1-10"  TO  SEQNO.
+           MOVE  WK-DATA-LEN     TO  WK-DATA-LEN2.
+           IF  WK-DATA-LEN2 = 1 THEN
+               IF  WK-IN-CHK-DATA  = "+" OR "-" OR "."  THEN
+                   MOVE  CNS-ERROR-2  TO  RTN-CD OF SCZY9001-ARG
+               ELSE
+                   MOVE  WK-IN-CHK-DATA  TO   WK-IN-CHK-DATA2
+               END-IF
+           ELSE
+               IF WK-IN-CHK-DATA(1:1) = "+"  OR  "-"  THEN
+                   IF    WK-DATA-LEN2 = 2
+                     AND WK-IN-CHK-DATA(2:1) = "." THEN
+                        MOVE  CNS-ERROR-2 TO  RTN-CD OF SCZY9001-ARG
+                   ELSE
+      *----SCS.唐 2006/10/02入力データの桁数を500バイトに拡張の対応START
+      *                 MOVE  WK-IN-CHK-DATA(2:255)  TO  WK-IN-CHK-DATA2
+                        MOVE  WK-IN-CHK-DATA(2:)  TO  WK-IN-CHK-DATA2
+      *----SCS.唐 2006/10/02入力データの桁数を500バイトに拡張の対応START
+                        COMPUTE WK-DATA-LEN2 = WK-DATA-LEN2 - 1
+                   END-IF
+               ELSE
+                   MOVE  WK-IN-CHK-DATA  TO  WK-IN-CHK-DATA2
+               END-IF
+           END-IF.
+           IF  RTN-CD OF SCZY9001-ARG = 0 THEN
+               MOVE  ZERO  TO  WK-IDX1
+               MOVE  ZERO  TO  WK-SYOUSU
+               PERFORM
+                 VARYING  WK-IDX1  FROM  1  BY  1
+                 UNTIL  WK-IDX1 >  WK-DATA-LEN2
+                 IF  WK-IN-CHK-DATA2(WK-IDX1:1)  = X"2E"  THEN
+                     COMPUTE WK-SYOUSU = WK-SYOUSU + 1
+                 ELSE
+                     CONTINUE
+                 END-IF
+                 END-PERFORM
+               IF  WK-SYOUSU > 1  THEN
+                   MOVE  CNS-ERROR-2 TO  RTN-CD OF SCZY9001-ARG
+               ELSE
+                  IF  WK-IN-CHK-DATA2(1:WK-DATA-LEN2)  IS  JITU-10  THEN
+                      CONTINUE
+                  ELSE
+                      MOVE  CNS-ERROR-2  TO  RTN-CD OF SCZY9001-ARG
+                  END-IF
+               END-IF
+           ELSE
+               CONTINUE
+           END-IF.
+           IF  RTN-CD OF SCZY9001-ARG  NOT = "0"  THEN
+               IF  FLG-CHK-G = CNS-ON  THEN
+                   MOVE  "11"    TO  ERR-NAIYOU
+                   MOVE  CNS-ON  TO  FLG-ERR
+               ELSE
+                  CONTINUE
+               END-IF
+               IF  FLG-CHK-GE = CNS-ON  THEN
+                   MOVE  "12"    TO  ERR-NAIYOU
+                   MOVE  CNS-ON  TO  FLG-ERR
+               ELSE
+                   CONTINUE
+               END-IF
+               IF  FLG-CHK-L = CNS-ON  THEN
+                   MOVE  "13"    TO  ERR-NAIYOU
+                   MOVE  CNS-ON  TO  FLG-ERR
+               ELSE
+                   CONTINUE
+               END-IF
+               IF  FLG-CHK-LE = CNS-ON  THEN
+                   MOVE  "14"    TO  ERR-NAIYOU
+                   MOVE  CNS-ON  TO  FLG-ERR
+               ELSE
+                   CONTINUE
+               END-IF
+               IF  FLG-CHK-G  = CNS-OFF  AND
+                   FLG-CHK-GE = CNS-OFF  AND
+                   FLG-CHK-L  = CNS-OFF  AND
+                   FLG-CHK-LE = CNS-OFF  THEN
+                   MOVE  "10"    TO  ERR-NAIYOU
+                   MOVE  CNS-ON  TO  FLG-ERR
+               ELSE
+                   CONTINUE
+               END-IF
+           ELSE
+               CONTINUE
+           END-IF.
+      *----- 実数チェック処理終了
+      *    MOVE  "SEGYOMU-1-10-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-10-RTN".
+       GYOMU-1-10-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-11) 数値範囲（G）チェック処理
+      ******************************************************************
+       GYOMU-1-11-RTN                  SECTION.
+      *    MOVE  "SSGYOMU-1-11-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-11-RTN"
+      *    MOVE  "4-1-11"  TO  SEQNO.
+           MOVE  WK-IN-CHK-DATA  TO  WK-SUTI-HANI-G-X.
+           MOVE  CNS-ON  TO  FLG-CHK-G.
+           PERFORM  GYOMU-1-10-RTN.
+           IF  FLG-ERR = CNS-OFF  THEN
+               CONTINUE
+           ELSE
+               GO TO  GYOMU-1-11-EXT
+           END-IF.
+      *    IF  (( FLG-CHK-KETA = CNS-OFF )
+      *      AND  ( FLG-ERR = CNS-OFF )) THEN
+      *        IF  FUNCTION NUMVAL ( WK-SUTI-HANI-G-X ) > SUTI-HANI-G
+      *        THEN
+      *            CONTINUE
+      *        ELSE
+      *           MOVE  CNS-ERROR-2    TO  RTN-CD OF SCZY9001-ARG
+      *           MOVE  "11"    TO  ERR-NAIYOU
+      *           MOVE  CNS-ON  TO  FLG-ERR
+      *        END-IF
+      *    ELSE
+      *        MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+      *        MOVE  "11"    TO  ERR-NAIYOU
+      *        MOVE  CNS-ON  TO  FLG-ERR
+      *    END-IF.
+           MOVE  SPACE           TO  WK-CHK-DATA.
+           MOVE  WK-IN-CHK-DATA  TO  WK-CHK-DATA.
+           PERFORM  WK-CHK-DATA-RTN.
+           MOVE  WK-CHK-DATA-CH  TO  WK-IN-DATA-CH.
+           MOVE  SPACE           TO  WK-CHK-DATA.
+           MOVE  SUTI-HANI-G     TO  WK-CHK-DATA.
+           PERFORM  WK-CHK-DATA-RTN.
+           MOVE  WK-CHK-DATA-CH  TO  WK-SUTI-HANI-CH.
+           PERFORM  CHECK-DATA-RTN.
+           EVALUATE  WK-CHECK-FLG
+             WHEN  "1"
+                 MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  "11"    TO  ERR-NAIYOU
+                 MOVE  CNS-ON  TO  FLG-ERR
+             WHEN  "2"
+                 CONTINUE
+             WHEN  "3"
+                 MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  "11"    TO  ERR-NAIYOU
+                 MOVE  CNS-ON  TO  FLG-ERR
+             WHEN  OTHER
+                 MOVE  CNS-ERROR-9     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  CNS-ON  TO  FLG-ERR
+           END-EVALUATE.
+      *----- 数値範囲（G）チェック処理終了
+      *    MOVE  "SEGYOMU-1-11-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "RTN-CD OF SCZY9001-ARG["RTN-CD OF SCZY9001-ARG"]".
+      D    DISPLAY  "GYOMU-1-11-RTN".
+       GYOMU-1-11-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-12) 数値範囲（GE）チェック処理
+      ******************************************************************
+       GYOMU-1-12-RTN                  SECTION.
+      *    MOVE  "SSGYOMU-1-12-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-12-RTN"
+      *    MOVE  "4-1-12"  TO  SEQNO.
+           MOVE  WK-IN-CHK-DATA  TO  WK-SUTI-HANI-GE-X.
+           MOVE  CNS-ON  TO  FLG-CHK-GE.
+           PERFORM  GYOMU-1-10-RTN.
+           IF  FLG-ERR = CNS-OFF THEN
+               CONTINUE
+           ELSE
+               GO TO  GYOMU-1-12-EXT
+           END-IF.
+      *    IF  (( FLG-CHK-KETA = CNS-OFF )
+      *     AND ( FLG-ERR = CNS-OFF ))   THEN
+      *        IF  FUNCTION NUMVAL ( WK-SUTI-HANI-GE-X ) >= SUTI-HANI-GE
+      *        THEN
+      *            CONTINUE
+      *        ELSE
+      *            MOVE  CNS-ERROR-2    TO  RTN-CD OF SCZY9001-ARG
+      *            MOVE  "12"    TO  ERR-NAIYOU
+      *            MOVE  CNS-ON  TO  FLG-ERR
+      *        END-IF
+      *    ELSE
+      *        MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+      *        MOVE  "12"    TO  ERR-NAIYOU
+      *        MOVE  CNS-ON  TO  FLG-ERR
+      *    END-IF.
+           MOVE  SPACE           TO  WK-CHK-DATA.
+           MOVE  WK-IN-CHK-DATA  TO  WK-CHK-DATA.
+           PERFORM  WK-CHK-DATA-RTN.
+           MOVE  WK-CHK-DATA-CH  TO  WK-IN-DATA-CH.
+           MOVE  SPACE           TO  WK-CHK-DATA.
+           MOVE  SUTI-HANI-GE    TO  WK-CHK-DATA.
+           PERFORM  WK-CHK-DATA-RTN.
+           MOVE  WK-CHK-DATA-CH  TO  WK-SUTI-HANI-CH.
+           PERFORM  CHECK-DATA-RTN.
+           EVALUATE  WK-CHECK-FLG
+             WHEN  "1"
+             WHEN  "2"
+                 CONTINUE
+             WHEN  "3"
+                 MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  "12"    TO  ERR-NAIYOU
+                 MOVE  CNS-ON  TO  FLG-ERR
+             WHEN  OTHER
+                 MOVE  CNS-ERROR-9     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  CNS-ON  TO  FLG-ERR
+           END-EVALUATE.
+      *----- 数値範囲（GE）チェック処理終了
+      *    MOVE  "SEGYOMU-1-12-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "RTN-CD OF SCZY9001-ARG["RTN-CD OF SCZY9001-ARG"]".
+      D    DISPLAY  "GYOMU-1-12-RTN".
+       GYOMU-1-12-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-13) 数値範囲（L）チェック処理
+      ******************************************************************
+       GYOMU-1-13-RTN                  SECTION.
+      *    MOVE  "SSGYOMU-1-13-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-13-RTN"
+      *    MOVE  "4-1-13"  TO  SEQNO.
+           MOVE  WK-IN-CHK-DATA  TO  WK-SUTI-HANI-L-X.
+           MOVE  CNS-ON  TO  FLG-CHK-L.
+           PERFORM  GYOMU-1-10-RTN.
+           IF  FLG-ERR = CNS-OFF THEN
+               CONTINUE
+           ELSE
+               GO TO  GYOMU-1-13-EXT
+           END-IF.
+      *    IF  (( FLG-CHK-KETA = CNS-OFF )
+      *     AND ( FLG-ERR = CNS-OFF )) THEN
+      *        IF  FUNCTION NUMVAL ( WK-SUTI-HANI-L-X ) < SUTI-HANI-L
+      *        THEN
+      *            CONTINUE
+      *        ELSE
+      *            MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+      *            MOVE  "13"    TO  ERR-NAIYOU
+      *            MOVE  CNS-ON  TO  FLG-ERR
+      *        END-IF
+      *    ELSE
+      *        MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+      *        MOVE  "13"    TO  ERR-NAIYOU
+      *        MOVE  CNS-ON  TO  FLG-ERR
+      *    END-IF.
+           MOVE  SPACE           TO  WK-CHK-DATA.
+           MOVE  WK-IN-CHK-DATA  TO  WK-CHK-DATA.
+           PERFORM  WK-CHK-DATA-RTN.
+           MOVE  WK-CHK-DATA-CH  TO  WK-IN-DATA-CH.
+           MOVE  SPACE           TO  WK-CHK-DATA.
+           MOVE  SUTI-HANI-L     TO  WK-CHK-DATA.
+           PERFORM  WK-CHK-DATA-RTN.
+           MOVE  WK-CHK-DATA-CH  TO  WK-SUTI-HANI-CH.
+           PERFORM  CHECK-DATA-RTN.
+           EVALUATE  WK-CHECK-FLG
+             WHEN  "1"
+             WHEN  "2"
+                 MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  "13"    TO  ERR-NAIYOU
+                 MOVE  CNS-ON  TO  FLG-ERR
+             WHEN  "3"
+                 CONTINUE
+             WHEN  OTHER
+                 MOVE  CNS-ERROR-9     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  CNS-ON  TO  FLG-ERR
+           END-EVALUATE.
+      *----- 数値範囲（L）チェック処理終了
+      *    MOVE  "SEGYOMU-1-13-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "RTN-CD OF SCZY9001-ARG["RTN-CD OF SCZY9001-ARG"]".
+      D    DISPLAY  "GYOMU-1-13-RTN".
+       GYOMU-1-13-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-14) 数値範囲（LE）チェック処理
+      ******************************************************************
+       GYOMU-1-14-RTN                  SECTION.
+      *    MOVE  "SSGYOMU-1-14-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-14-RTN"
+      *    MOVE  "4-1-14"  TO  SEQNO.
+           MOVE  WK-IN-CHK-DATA  TO  WK-SUTI-HANI-LE-X.
+           MOVE  CNS-ON  TO  FLG-CHK-LE.
+           PERFORM  GYOMU-1-10-RTN.
+           IF  FLG-ERR = CNS-OFF THEN
+               CONTINUE
+           ELSE
+               GO TO  GYOMU-1-14-EXT
+           END-IF.
+      *    IF  (( FLG-CHK-KETA = CNS-OFF )
+      *     AND ( FLG-ERR = CNS-OFF )) THEN
+      *        IF  FUNCTION NUMVAL ( WK-SUTI-HANI-LE-X ) <= SUTI-HANI-LE
+      *        THEN
+      *            CONTINUE
+      *        ELSE
+      *            MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+      *            MOVE  "14"    TO  ERR-NAIYOU
+      *            MOVE  CNS-ON  TO  FLG-ERR
+      *        END-IF
+      *    ELSE
+      *        MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+      *        MOVE  "14"    TO  ERR-NAIYOU
+      *        MOVE  CNS-ON  TO  FLG-ERR
+      *    END-IF.
+           MOVE  SPACE           TO  WK-CHK-DATA.
+           MOVE  WK-IN-CHK-DATA  TO  WK-CHK-DATA.
+           PERFORM  WK-CHK-DATA-RTN.
+           MOVE  WK-CHK-DATA-CH  TO  WK-IN-DATA-CH.
+           MOVE  SPACE           TO  WK-CHK-DATA.
+           MOVE  SUTI-HANI-LE    TO  WK-CHK-DATA.
+           PERFORM  WK-CHK-DATA-RTN.
+           MOVE  WK-CHK-DATA-CH  TO  WK-SUTI-HANI-CH.
+           PERFORM  CHECK-DATA-RTN.
+           EVALUATE  WK-CHECK-FLG
+             WHEN  "1"
+             WHEN  "3"
+                 CONTINUE
+             WHEN  "2"
+                 MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  "14"    TO  ERR-NAIYOU
+                 MOVE  CNS-ON  TO  FLG-ERR
+             WHEN  OTHER
+                 MOVE  CNS-ERROR-9     TO  RTN-CD OF SCZY9001-ARG
+                 MOVE  CNS-ON  TO  FLG-ERR
+           END-EVALUATE.
+      *----- 数値範囲（LE）チェック処理終了
+      *    MOVE  "SEGYOMU-1-14-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "RTN-CD OF SCZY9001-ARG["RTN-CD OF SCZY9001-ARG"]".
+      D    DISPLAY  "GYOMU-1-14-RTN".
+       GYOMU-1-14-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-15) 桁数（LE）チェック処理
+      ******************************************************************
+       GYOMU-1-15-RTN                  SECTION.
+      *    MOVE  "SSGYOMU-1-15-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-15-RTN"
+      *    MOVE  "4-1-15"  TO  SEQNO.
+           IF  WK-DATA-LEN-TMP  > DATA-LEN  THEN
+               MOVE  CNS-ERROR-2  TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "15"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           ELSE
+               CONTINUE
+           END-IF
+      D    DISPLAY  "RTN-CD (LEN-TMP-LE)["RTN-CD OF SCZY9001-ARG"]"
+           IF  WK-DATA-LEN  <= KETA-LE  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2     TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "15"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           END-IF.
+      *----- 桁数（LE）チェック処理終了
+      *    MOVE  "SEGYOMU-1-15-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-15-RTN".
+       GYOMU-1-15-EXT.
+           EXIT.
+      ******************************************************************
+      *    (4-1-16) 桁数（E）チェック処理
+      ******************************************************************
+       GYOMU-1-16-RTN                  SECTION.
+      *    MOVE  "SSGYOMU-1-16-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-16-RTN"
+      *    MOVE  "4-1-16"  TO  SEQNO.
+           IF  WK-DATA-LEN-TMP  > DATA-LEN  THEN
+               MOVE  CNS-ERROR-2  TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "16"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           ELSE
+               CONTINUE
+           END-IF
+      D    DISPLAY  "RTN-CD (LEN-TMP-L)["RTN-CD OF SCZY9001-ARG"]"
+           IF  WK-DATA-LEN  = KETA-E  THEN
+               CONTINUE
+           ELSE
+               MOVE  CNS-ERROR-2    TO  RTN-CD OF SCZY9001-ARG
+               MOVE  "16"    TO  ERR-NAIYOU
+               MOVE  CNS-ON  TO  FLG-ERR
+           END-IF.
+      *----- 桁数（E）チェック処理終了
+      *    MOVE  "SEGYOMU-1-16-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "GYOMU-1-16-RTN".
+       GYOMU-1-16-EXT.
+           EXIT.
+      ******************************************************************
+      *    Ｘ．１．十八桁チェック処理
+      ******************************************************************
+       KETA-18-CHK-RTN                 SECTION.
+      *    MOVE  "SSKETA-18-CHK-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "KETA-18-CHK-RTN"
+           MOVE  WK-DATA-LEN  TO  WK-KETA-CHK-LEN.
+           IF  WK-IN-CHK-DATA(1:1) = "+"  OR  "-"  THEN
+               COMPUTE  WK-KETA-CHK-LEN = WK-KETA-CHK-LEN - 1
+           ELSE
+               CONTINUE
+           END-IF.
+           IF  WK-SYOUSU = 1  THEN
+               COMPUTE  WK-KETA-CHK-LEN = WK-KETA-CHK-LEN - 1
+           ELSE
+               CONTINUE
+           END-IF.
+      D    DISPLAY  "WK-KETA-CHK-LEN =[" WK-KETA-CHK-LEN "]".
+           IF  WK-KETA-CHK-LEN  > 18  THEN
+               MOVE  CNS-ON  TO  FLG-CHK-KETA
+           ELSE
+               CONTINUE
+           END-IF.
+      D    DISPLAY  "FLG-CHK-KETA =[" FLG-CHK-KETA "]".
+      *----- 十八桁チェック処理終了
+      *    MOVE  "SEKETA-18-CHK-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "KETA-18-CHK-RTN".
+       KETA-18-CHK-EXT.
+           EXIT.
+      ******************************************************************
+      *    WK-CHK-DATA処理
+      ******************************************************************
+       WK-CHK-DATA-RTN                 SECTION.
+      D    DISPLAY  "WK-CHK-DATA-RTN"
+           INITIALIZE  WK-CHK-DATA-CH
+      D    DISPLAY  "WK-CHK-DATA(DATA処理1)["WK-CHK-DATA"]"
+      *----- WK-CHK-DATA処理
+           MOVE WK-CHK-DATA  TO  WK-CHK-DATA-TEMP
+           MOVE  1           TO  WK-LEN-NUMBER1
+      D    DISPLAY  "WK-CHK-DATA-TEMP(WK-LEN-NUMBER1)(DATA処理1)["
+      D    WK-CHK-DATA-TEMP(WK-LEN-NUMBER1:1)"]"
+           PERFORM  UNTIL ( WK-LEN-NUMBER1  =  500 )
+                  OR  ( WK-CHK-DATA-TEMP(WK-LEN-NUMBER1:1) NOT = SPACE )
+              COMPUTE  WK-LEN-NUMBER1  =  WK-LEN-NUMBER1 + 1
+           END-PERFORM
+           MOVE SPACE  TO  WK-CHK-DATA
+           MOVE  WK-CHK-DATA-TEMP(WK-LEN-NUMBER1:(501 - WK-LEN-NUMBER1))
+             TO  WK-CHK-DATA
+      D    DISPLAY  "WK-LEN-NUMBER1(DATA処理1)["WK-LEN-NUMBER1"]"
+      D    DISPLAY  "WK-CHK-DATA(DATA処理1)["WK-CHK-DATA"]"
+           MOVE  ZERO  TO  WK-LEN-NUMBER1
+           EVALUATE  WK-CHK-DATA(1:1)
+               WHEN  "+"
+               WHEN  "-"
+                   MOVE  WK-CHK-DATA(1:1)  TO  WK-DATA-CH-1
+                   MOVE  2    TO  WK-LEN-NUMBER
+               WHEN  SPACE
+                   MOVE  "+"  TO  WK-DATA-CH-1
+                   MOVE  2    TO  WK-LEN-NUMBER
+               WHEN  OTHER
+                   MOVE  "+"  TO  WK-DATA-CH-1
+                   MOVE  1    TO  WK-LEN-NUMBER
+           END-EVALUATE
+      D    DISPLAY  "WK-CHK-DATA-CH(DATA処理2)["WK-CHK-DATA-CH"]"
+           MOVE  WK-LEN-NUMBER  TO  WK-LEN-NUMBER1
+           PERFORM  UNTIL ( WK-CHK-DATA(WK-LEN-NUMBER:1)  =  SPACE )
+                     OR   ( WK-CHK-DATA(WK-LEN-NUMBER:1)  =  "."   )
+             COMPUTE  WK-LEN-NUMBER  = WK-LEN-NUMBER +  1
+             COMPUTE  WK-LEN2  =  WK-LEN2  +  1
+           END-PERFORM
+           MOVE  ZERO  TO  WK-VALUE2
+           MOVE  WK-CHK-DATA(WK-LEN-NUMBER1:WK-LEN2)
+             TO  WK-VALUE2((100 - WK-LEN2 + 1):WK-LEN2)
+      D    DISPLAY  "WK-CHK-DATA-CH(DATA処理3)["WK-CHK-DATA-CH"]"
+           PERFORM  UNTIL ( WK-CHK-DATA(WK-LEN-NUMBER:1) =  SPACE )
+             COMPUTE  WK-LEN-NUMBER  = WK-LEN-NUMBER +  1
+             COMPUTE  WK-LEN3  =  WK-LEN3  +  1
+           END-PERFORM
+           IF  WK-LEN3 > 0 THEN
+             COMPUTE  WK-LEN3  =  WK-LEN3  - 1
+           END-IF
+           MOVE  WK-CHK-DATA((WK-LEN2 + WK-LEN-NUMBER1 + 1):WK-LEN3 )
+             TO  WK-VALUE3
+      D    DISPLAY  "WK-CHK-DATA-CH(DATA処理4)["WK-CHK-DATA-CH"]"
+           INSPECT WK-VALUE3 REPLACING ALL SPACE BY ZERO
+      D    DISPLAY  "WK-CHK-DATA-CH(DATA処理5)["WK-CHK-DATA-CH"]"
+      D    DISPLAY  "WK-CHK-DATA-RTN"
+           CONTINUE.
+       WK-CHK-DATA-EXT.
+           EXIT.
+      ******************************************************************
+      *    WK-CHECK-FLG処理
+      ******************************************************************
+       CHECK-DATA-RTN                  SECTION.
+      D    DISPLAY  "CHECK-DATA-RTN"
+           MOVE  SPACE  TO   WK-CHECK-FLG
+      D    DISPLAY  "WK-IN-DATA-CH  (FLG処理1)["WK-IN-DATA-CH"]"
+      D    DISPLAY  "WK-SUTI-HANI-CH(FLG処理1)["WK-SUTI-HANI-CH"]"
+      D    DISPLAY  "WK-CHECK-FLG   (FLG処理1)["WK-CHECK-FLG"]"
+      *----- WK-CHECK-FLG処理
+      *----- WK-IN-DATA-CH  =  WK-SUTI-HANI-CHの符号 ->  "1"
+      *----- WK-IN-DATA-CH  >  WK-SUTI-HANI-CHの符号 ->  "2"
+      *----- WK-IN-DATA-CH  <  WK-SUTI-HANI-CHの符号 ->  "3"
+           EVALUATE  WK-IN-DATA-1
+              WHEN  "+"
+                  EVALUATE  WK-SUTI-HANI-1
+                      WHEN  "+"
+                            CONTINUE
+                      WHEN  "-"
+                            MOVE  "2"  TO  WK-CHECK-FLG
+                      WHEN  OTHER
+                            MOVE  "0"  TO  WK-CHECK-FLG
+                  END-EVALUATE
+              WHEN  "-"
+                  EVALUATE  WK-SUTI-HANI-1
+                      WHEN  "+"
+                            MOVE  "3"  TO  WK-CHECK-FLG
+                      WHEN  "-"
+                            CONTINUE
+                      WHEN  OTHER
+                            MOVE  "0"  TO  WK-CHECK-FLG
+                  END-EVALUATE
+              WHEN  OTHER
+                    MOVE  "0"  TO  WK-CHECK-FLG
+           END-EVALUATE
+      D    DISPLAY  "WK-CHECK-FLG   (符号判断)["WK-CHECK-FLG"]"
+           IF  WK-CHECK-FLG = SPACE  AND WK-IN-DATA-1  = "+" THEN
+               IF  WK-DATA-VALUE2  =  WK-SUTI-VALUE2  THEN
+                   IF  WK-DATA-VALUE3  =  WK-SUTI-VALUE3  THEN
+                       MOVE  "1"  TO  WK-CHECK-FLG
+                   ELSE
+                       IF  WK-DATA-VALUE3  >  WK-SUTI-VALUE3  THEN
+                           MOVE  "2"  TO  WK-CHECK-FLG
+                       ELSE
+                           MOVE  "3"  TO  WK-CHECK-FLG
+                       END-IF
+                   END-IF
+               ELSE
+                   IF  WK-DATA-VALUE2  >  WK-SUTI-VALUE2  THEN
+                       MOVE  "2"  TO  WK-CHECK-FLG
+                   ELSE
+                       MOVE  "3"  TO  WK-CHECK-FLG
+                   END-IF
+               END-IF
+           ELSE
+               CONTINUE
+           END-IF
+           IF  WK-CHECK-FLG = SPACE  AND WK-IN-DATA-1  = "-" THEN
+               IF  WK-DATA-VALUE2  =  WK-SUTI-VALUE2  THEN
+                   IF  WK-DATA-VALUE3  =  WK-SUTI-VALUE3  THEN
+                       MOVE  "1"  TO  WK-CHECK-FLG
+                   ELSE
+                       IF  WK-DATA-VALUE3  >  WK-SUTI-VALUE3  THEN
+                           MOVE  "3"  TO  WK-CHECK-FLG
+                       ELSE
+                           MOVE  "2"  TO  WK-CHECK-FLG
+                       END-IF
+                   END-IF
+               ELSE
+                   IF  WK-DATA-VALUE2  >  WK-SUTI-VALUE2  THEN
+                       MOVE  "3"  TO  WK-CHECK-FLG
+                   ELSE
+                       MOVE  "2"  TO  WK-CHECK-FLG
+                   END-IF
+               END-IF
+           ELSE
+               CONTINUE
+           END-IF
+      D    DISPLAY  "WK-IN-DATA-CH  (FLG処理2)["WK-IN-DATA-CH"]"
+      D    DISPLAY  "WK-SUTI-HANI-CH(FLG処理2)["WK-SUTI-HANI-CH"]"
+      D    DISPLAY  "WK-CHECK-FLG   (FLG処理2)["WK-CHECK-FLG"]"
+      D    DISPLAY  "CHECK-DATA-RTN"
+           CONTINUE.
+       CHECK-DATA-EXT.
+           EXIT.
+      ******************************************************************
+      *    (5) 終了処理
+      ******************************************************************
+       END-RTN                         SECTION.
+      *    MOVE  "SSEND-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "END-RTN"
+      D    DISPLAY  "SCZY9001-ARG-IN =[" SCZY9001-ARG-IN "]".
+      D    DISPLAY  "SCZY9001-ARG-OUT =[" SCZY9001-ARG-OUT "]".
+      D    DISPLAY  "FLG-ERR    =[" FLG-ERR "]".
+      D    DISPLAY  "RTN-CD OF SCZY9001-ARG     =["
+      D                                 RTN-CD OF SCZY9001-ARG "]".
+      D    DISPLAY  "ERR-NAIYOU =[" ERR-NAIYOU "]".
+      *    MOVE  "5"  TO  SEQNO.
+      *----- 終了処理終了
+      *    MOVE  "SEEND-RTN"  TO  LOG-INF-REC
+      *    PERFORM  LOG-OUT-I-RTN.
+      D    DISPLAY  "END-RTN".
+           CONTINUE.
+       END-EXT.
+           EXIT.
+      ******************************************************************
+      *    DISPLAY SUBROUTINE
+      ******************************************************************
+      *    COPY  "CSSD0002.CPY".
+      *    COPY  "CCTY0012.CPY".
+      *********************** BOTTOM OF PGM ****************************

@@ -1,0 +1,399 @@
+      ******************************************************************
+      * $Header$
+000100******************************************************************        
+000200*    1. PROGRAM-NAME         - IXGS722                           *        
+000300*    2. FUNCTION             - ｼﾖｳｶﾝｷﾝ ｾﾂｿﾞｸ  直販               *    
+000400*    3. PROGRAMER            - NRI NAKAJIMA      97/02/06        *        
+000500*    4. DATE OF LAST UPDATE                                      *        
+000600*       981109  T-STAR21 ﾀｲｵｳ  ARGO21 UJUU                       *981109  
+000650*    5. 991217  ﾃﾞｰﾀﾚｺｰﾄﾞ ﾉ ﾚｺｰﾄﾞｸﾌﾞﾝ ﾆ '01'ｦ ｾﾂﾃｲ ｽﾙ            *991217  
+000700******************************************************************        
+000800*                                                                         
+      *次期T-STARダウンサイジング
+      * 改訂履歴
+      * 年月日     区分 所属     担当    内容
+      * --------   ---- -------- ------- -------------------------------
+      * 20070622   修正 BTC      費書博  RTNパッケージのリライト
+      ******************************************************************
+000900 IDENTIFICATION         DIVISION.                                         
+001000 PROGRAM-ID.            IXGS722.                                          
+001100 AUTHOR.                HIMACS.                                           
+       DATE-WRITTEN.  2007-06-22.
+       DATE-COMPILED.
+001200******************************************************************        
+001300 ENVIRONMENT            DIVISION.                                         
+001400******************************************************************        
+001500 CONFIGURATION          SECTION.                                          
+       SOURCE-COMPUTER.       L1000V.
+      *SOURCE-COMPUTER.       L1000V   WITH DEBUGGING MODE.
+       OBJECT-COMPUTER.       RP5470.
+001800 INPUT-OUTPUT           SECTION.                                          
+001900 FILE-CONTROL.                                                            
+002000     SELECT   IXBPSH-FILE                                                 
+002100         ASSIGN         TO  DA-SYS101                                     
+002200         ORGANIZATION   IS SEQUENTIAL                                     
+002300         ACCESS MODE    IS SEQUENTIAL.                                    
+002400     SELECT   IXTOAASH-FILE                                               
+002500         ASSIGN         TO  DA-SYS201                                     
+002600         ORGANIZATION   IS SEQUENTIAL                                     
+002700         ACCESS MODE    IS SEQUENTIAL.                                    
+002800******************************************************************        
+002900 DATA                   DIVISION.                                         
+003000******************************************************************        
+003100 FILE                   SECTION.                                          
+003200 FD  IXBPSH-FILE                                                          
+003300              RECORDING  MODE  IS F                                       
+003400              BLOCK  CONTAINS     0         RECORDS                       
+003500              RECORD CONTAINS     300       CHARACTERS                    
+003600              LABEL  RECORD  STANDARD                                     
+003700              DATA   RECORD       IXBPSH-REC.                             
+003800 01  IXBPSH-REC.                                                          
+003900     COPY  IXLCBPSH.                                                      
+004000*                                                                         
+004100 FD  IXTOAASH-FILE                                                        
+004200              RECORDING  MODE  IS F                                       
+004300              BLOCK  CONTAINS     0         RECORDS                       
+004400              RECORD CONTAINS     200       CHARACTERS                    
+004500              LABEL  RECORD  STANDARD                                     
+004600              DATA   RECORD       OUT-REC.                                
+004700 01  OUT-REC.                                                             
+004800     COPY  IXLC22AA.                                                      
+004900/*****************************************************************        
+005000 WORKING-STORAGE        SECTION.                                          
+       01  IDNAME                  PIC  X(80)  VALUE
+       "$Id$".
+005100******************************************************************        
+005200**** ﾍﾝｼﾕｳ ｴﾘｱ ****                                                       
+005300******     ｺｰﾄﾞ ﾍﾝｶﾝ   (EBCDIC --> JIS)                          *        
+005400 01  IXJISCVS                PIC  X(08) VALUE 'IKJISCV2'.                 
+005500 01  IKJISCVS-ARG1.                                                       
+005600     05  IKJISCVS-IN-BYTE    PIC  9(05)       COMP-3.                     
+005700     05  IKJISCVS-OUT-BYTE   PIC  9(05)       COMP-3.                     
+005800 01  IKJISCVS-ARG2.                                                       
+005900     05  IKJISCVS-IN-DATA    PIC  X(3000).                                
+006000 01  IKJISCVS-ARG3.                                                       
+006100     05  IKJISCVS-OUT-DATA   PIC  X(3000).                                
+006200 01  CNS-CHG-LINE            PIC  X(02) VALUE X'0D0A'.                    
+006300**** ADABAS OPEN/CLOSE ****                                               
+006400 01  IXMINT-ARG.                                                          
+006500     COPY     IXLC4004.                                                   
+006600     COPY     IXLC4001.                                                   
+006700**** ｹﾝｽｳ ﾋﾖｳｼﾞ ****                                                      
+006800 01  XUSKENSU                     PIC  X(008) VALUE 'XUSKENSU'.           
+006900 01  XUS-ARG1                     PIC  X(020) VALUE                       
+007000                                  '**** (IXGS722) **** '.                 
+007100 01  XUS-ARG2.                                                            
+007200     03  IX17-CNT                 PIC S9(013) COMP-3 VALUE ZERO.          
+007300     03  IXOUT-CNT                PIC S9(013) COMP-3 VALUE ZERO.          
+007400     03  FILLER                   PIC S9(013) COMP-3                      
+007500                                  VALUE -9999999999999.                   
+007600 01  XUS-ARG3.                                                            
+007700     03  FILLER                   PIC  X(025) VALUE                       
+007800                                  'IN                   ｹﾝ  '.            
+007900     03  FILLER                   PIC  X(025) VALUE                       
+008000                                  'OUT                  ｹﾝ  '.            
+008100*** ﾌﾗｸﾞ                                                                  
+008200 01  END-FLG                      PIC  X(002).                            
+008300*                                *********************************HS970428
+008400*                                *  ﾀﾝｶﾌｧｲﾙ ｺｳｿﾞｳ ｾｲｾｲﾖｳ  ﾚｲｱｳﾄ  *HS970428
+008500*                                *  H-REC D-REC E-REC            *HS970428
+008600*                                *********************************HS970428
+008700     COPY IXLC00AA.                                               HS970428
+008800**** ﾋﾂﾞｹ ｼﾞｶﾝ GET ﾙ-ﾁﾝ ****                                      HS970428
+008900 01  IXIN907S                     PIC  X(008) VALUE 'IXIN907S'.   HS970428
+009000     COPY     IXLC4011.                                           HS970428
+      ******************************************************************
+      *             スケ管追付き    ｴﾘｱ                                *
+      ******************************************************************
+      *----------  SCZC7010バッチ開始メッセージコピー句
+       01  PARM-SCZC7010-INOUT.
+           COPY  "SCZC7010.cpy".
+      *----------  SCZK7020バッチ終了メッセージコピー句
+       01  PARM-SCZK7020-INOUT.
+           COPY  "SCZK7020.cpy".
+      *----------  RTNパッケージ
+       01  PARM-SCZK7020-RTNPKG.
+           05  PARM-SCZK7020-ARG3.
+               COPY  "CZKRTNPACKAGE.cpy".
+       01  SCZC7010                   PIC  X(08)  VALUE  'SCZC7010'.
+       01  SCZK7020                   PIC  X(08)  VALUE  'SCZK7020'.
+      ******************************************************************
+      *             RTNパッケージ   ｴﾘｱ                                 
+      ******************************************************************
+      *----------  SCZC1170リターンパッケージセットコピー句             
+       01  PARM-SCZC1170-INOUT.                                         
+           COPY  "SCZC1170.cpy".                                        
+      *----------  RTNパッケージ                                        
+       01  PARM-SCZC1170-RTNPKG.                                        
+         05  PARM-SCZC1170-ARG2.                                        
+           COPY  "CZKRTNPACKAGE.cpy".                                    
+      *----------  サブルーチンコール用のRTNパッケージ                  
+       01  PARM-SUB-RTNPKG.                                             
+           COPY  "CZKRTNPACKAGE.cpy".                                     
+      *----------  定数コピー句                                         
+       01  PARM-CONSTANT-AREA.
+           05  CNS-PROGID          PIC  X(16) VALUE  "IXGS722        ".
+           COPY  "SUKECNS01.cpy".                                        
+       01  SCZC1170                   PIC  X(08)  VALUE  'SCZC1170'.    
+      ******************************************************************
+      *             デバッグ  ｴﾘｱ
+      ******************************************************************
+      D01  DBGSYRKS-ARG.
+      D     05  LOG-CONTENT      PIC    X(60).
+      D01  DBGSYRKS                   PIC  X(08)  VALUE  'DBGSYRKS'.
+009100/*****************************************************************        
+009200*    LINKAGE SECTION                                             *        
+009300******************************************************************        
+009400 LINKAGE                SECTION.                                          
+009500     COPY      IXLC4002.                                                  
+009600/*****************************************************************        
+009700 PROCEDURE     DIVISION    USING  PARM-LINK.                              
+009800******************************************************************        
+009900*                                                                         
+010000 MAIN                   SECTION.                                          
+      *----------    RTNパッケージの初期化                               
+      D    MOVE  "COVERAGE<IXGS722      MAIN                     1   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           INITIALIZE                 PARM-SCZC1170-INOUT               
+                                      PARM-SCZC1170-RTNPKG.
+           PERFORM  AUTO-INIT-RTN.
+010100     PERFORM  INIT-PROC.                                                  
+010200     PERFORM  MAIN-PROC.                                                  
+010300     PERFORM  END-PROC.                                                   
+      D    MOVE  "COVERAGE<IXGS722      MAIN                     2   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           PERFORM      END-RTN.
+010400     STOP  RUN.                                                           
+010500/*****************************************************************        
+010600*             INIT-PROC                                          *        
+010700******************************************************************        
+010800 INIT-PROC              SECTION.                                          
+010900 INIT-PROC-START.                                                         
+011000**** ｲﾝﾌﾟﾂﾄ ﾌｱｲﾙ ｵ-ﾌﾟﾝ ****                                               
+011100     OPEN     INPUT                IXBPSH-FILE.                           
+011200**** ｱｳﾄﾌﾟﾂﾄ ﾌｱｲﾙ ｵ-ﾌﾟﾝ ****                                              
+011300     OPEN     OUTPUT               IXTOAASH-FILE.                         
+011400**                                                                        
+011500*    CALL     IXIN907S     USING   IXIN907S-ARG.                  HS970428
+      D    MOVE  "COVERAGE<IXGS722      INIT-PROC                3   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           INITIALIZE  PARM-SUB-RTNPKG                                 
+           CALL     IXIN907S   USING  PARM-SUB-RTNPKG     
+                                      IXIN907S-ARG.       
+           IF  RTN-CD                 OF  PARM-SUB-RTNPKG               
+              (COUNTER                OF  PARM-SUB-RTNPKG)              
+                                      =  CNS-RTN-ERROR                  
+           THEN                                                         
+      D    MOVE  "COVERAGE<IXGS722      INIT-PROC                4   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+               MOVE  PARM-SUB-RTNPKG  TO  PARM-SCZC1170-RTNPKG          
+               MOVE  CNS-POS-1        TO  ERR-POS                    
+                                      OF  PARM-SCZC1170-INOUT  
+               PERFORM  ERROR-RTN                                       
+           END-IF                                                       
+011600     MOVE IXIN907S-ARG-3          TO  IXLC00AA-H-DATE.            HS970428
+011700     MOVE  'IXTOAASH'             TO  IXLC00AA-H-FIL-NAME.        HS970428
+011800*    MOVE  IXLC00AA-HEAD          TO  IKJISCVS-IN-DATA.           HS970428
+011900*    MOVE    200                  TO  IKJISCVS-IN-BYTE.           HS970428
+012000*    CALL    IXJISCVS          USING  IKJISCVS-ARG1               HS970428
+012100*                                     IKJISCVS-ARG2               HS970428
+012200*                                     IKJISCVS-ARG3.              HS970428
+012300*    MOVE    IKJISCVS-ARG3        TO  OUT-REC.                    HS970428
+      D    MOVE  "COVERAGE<IXGS722      INIT-PROC                5   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE  IXLC00AA-HEAD          TO  OUT-REC.
+012400     MOVE    CNS-CHG-LINE         TO  CHG-LINE.                   HS970428
+012500     WRITE   OUT-REC.                                             HS970428
+012600     ADD   1                      TO  IXOUT-CNT.                  *9810 28
+012700**** ｲﾆｼﾔﾗｲｽﾞ ****                                                        
+012800     MOVE     SPACE           TO   OUT-REC.                               
+012900     INITIALIZE                    OUT-REC.                               
+013000     MOVE     SPACE           TO   END-FLG.                               
+013100 INIT-PROC-END.                                                           
+013200     EXIT.                                                                
+013300/*****************************************************************        
+013400*             MAIN-PROC                                          *        
+013500******************************************************************        
+013600 MAIN-PROC              SECTION.                                          
+013700 MAIN-PROC-START.                                                         
+013800     READ     IXBPSH-FILE  AT END GO TO  MAIN-PROC-END.                   
+013900     COMPUTE  IX17-CNT  =  IX17-CNT  +  1.                        981109  
+014000*                                                                         
+014100     MOVE     IXBS-FUND OF IXBPSH-REC  TO IXBS-FUND OF OUT-REC.           
+014200     MOVE     IXBS-SAKUSEI-YMD OF IXBPSH-REC                              
+014300          TO  IXBS-SAKUSEI-YMD OF OUT-REC.                                
+014400     MOVE     IXBS-KIJUN-YMD OF IXBPSH-REC                                
+014500          TO  IXBS-KIJUN-YMD OF OUT-REC.                                  
+014600     MOVE     SPACE               TO   IXBS-FIL OF OUT-REC.               
+014700     MOVE     IXBS-SH-WAKACHI-KBN OF IXBPSH-REC                           
+014800          TO  IXBS-SH-WAKACHI-KBN OF OUT-REC.                             
+014900     MOVE     IXBS-SH-TNK OF IXBPSH-REC                                   
+015000          TO  IXBS-SH-TNK OF OUT-REC.                                     
+015100     MOVE     IXBS-SH-GAI-ZEI OF IXBPSH-REC                               
+015200          TO  IXBS-SH-GAI-ZEI OF OUT-REC.                                 
+015300     MOVE     IXBS-SH-HEIKIN OF IXBPSH-REC                                
+015400          TO  IXBS-SH-HEIKIN OF OUT-REC.                                  
+015500     MOVE     IXBS-RIMAWARI-HU OF IXBPSH-REC                            6 
+015600          TO  IXBS-RIMAWARI-HU OF OUT-REC.                              26
+015700     MOVE     IXBS-SH-SAEKI-O OF IXBPSH-REC                               
+015800          TO  IXBS-SH-SAEKI-O OF OUT-REC.                                 
+015900     MOVE     IXBS-SH-SAEKI-N OF IXBPSH-REC                               
+016000          TO  IXBS-SH-SAEKI-N OF OUT-REC.                                 
+016100     MOVE     IXBS-SH-NISUU-O OF IXBPSH-REC                               
+016200          TO  IXBS-SH-NISUU-O OF OUT-REC.                                 
+016300     MOVE     IXBS-SH-NISUU-N OF IXBPSH-REC                               
+016400          TO  IXBS-SH-NISUU-N OF OUT-REC.                                 
+016500     MOVE     IXBS-SH-SHOTOKU-ZEI OF IXBPSH-REC                           
+016600          TO  IXBS-SH-SHOTOKU-ZEI OF OUT-REC.                             
+016700     MOVE     IXBS-SH-CHIHOU-ZEI OF IXBPSH-REC                            
+016800          TO  IXBS-SH-CHIHOU-ZEI OF OUT-REC.                              
+016900     MOVE     IXBS-SH-SOUGOU-ZEI OF IXBPSH-REC                            
+017000          TO  IXBS-SH-SOUGOU-ZEI OF OUT-REC.                              
+017100     MOVE     IXBS-SH-BUNRI-ZEI OF IXBPSH-REC                             
+017200          TO  IXBS-SH-BUNRI-ZEI OF OUT-REC.                               
+017300     MOVE     IXBS-SH-TEDORI-MARUU OF IXBPSH-REC                          
+017400          TO  IXBS-SH-TEDORI-MARUU OF OUT-REC.                            
+017500     MOVE     IXBS-SH-TEDORI-SOUGOU OF IXBPSH-REC                         
+017600          TO  IXBS-SH-TEDORI-SOUGOU OF OUT-REC.                           
+017700     MOVE     IXBS-SH-TEDORI-BUNRI OF IXBPSH-REC                          
+017800          TO  IXBS-SH-TEDORI-BUNRI OF OUT-REC.                            
+017900     MOVE     IXBS-SH-HARAI-YMD OF IXBPSH-REC                             
+018000          TO  IXBS-SH-HARAI-YMD OF OUT-REC.                               
+018100******                                                                    
+018200*****MOVE  IXLC00AA-D-REC-KBN     TO  IXLC22AA-REC-KBN.           98110928
+018250     MOVE  IXLC00AA-D-REC-KBN     TO  IXLC22AA-REC-KBN.           991217  
+018300*    MOVE    OUT-REC          TO     IKJISCVS-IN-DATA.                    
+018400*    MOVE    200              TO     IKJISCVS-IN-BYTE.                    
+018500*    CALL    IXJISCVS       USING    IKJISCVS-ARG1                        
+018600*                                    IKJISCVS-ARG2                        
+018700*                                    IKJISCVS-ARG3.                       
+018800*    MOVE    IKJISCVS-ARG3    TO     OUT-REC.                             
+018900     MOVE    CNS-CHG-LINE     TO     CHG-LINE.                            
+019000     WRITE    OUT-REC.                                                    
+019100     ADD   1                      TO  IXLC00AA-E-REC-QTY.         HS970428
+019200     ADD   1                      TO  IXOUT-CNT.                  *9810 28
+019300**** ｲﾆｼﾔﾗｲｽﾞ ****                                                        
+019400     MOVE    SPACE            TO     OUT-REC.                             
+019500     INITIALIZE OUT-REC.                                                  
+019600*                                                                         
+019700     GO  TO  MAIN-PROC-START.                                             
+019800*                                                                         
+019900 MAIN-PROC-END.                                                           
+020000     EXIT.                                                                
+020100/*****************************************************************        
+020200*             END-PROC                                           *        
+020300******************************************************************        
+020400 END-PROC               SECTION.                                          
+020500 END-PROC-START.                                                          
+020600*    MOVE  IXLC00AA-END           TO  IKJISCVS-IN-DATA.           HS970428
+020700*    MOVE    200                  TO  IKJISCVS-IN-BYTE.           HS970428
+020800*    CALL    IXJISCVS          USING  IKJISCVS-ARG1               HS970428
+020900*                                     IKJISCVS-ARG2               HS970428
+021000*                                     IKJISCVS-ARG3.              HS970428
+021100*    MOVE    IKJISCVS-ARG3        TO  OUT-REC.                    HS970428
+      D    MOVE  "COVERAGE<IXGS722      END-PROC                 6   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE    IXLC00AA-END         TO  OUT-REC.
+021200     MOVE    CNS-CHG-LINE         TO  CHG-LINE.                   HS970428
+021300     WRITE   OUT-REC.                                             HS970428
+021400     ADD   1                      TO  IXOUT-CNT.                  *9810 28
+021500**** ﾌｱｲﾙ ｸﾛ-ｽﾞ ****                                                      
+021600     CLOSE         IXBPSH-FILE.                                           
+021700     CLOSE         IXTOAASH-FILE.                                         
+021800*                                                                 *9810   
+021900     CALL    XUSKENSU        USING    XUS-ARG1                    *9810   
+022000                                      XUS-ARG2                    *9810   
+022100                                      XUS-ARG3.                   *9810   
+022200 END-PROC-END.                                                            
+022300     EXIT.                                                                
+      ******************************************************************
+      *    バッチ開始メッセージ出力
+      ******************************************************************
+       KAISI-MSG-RTN          SECTION.
+      D    MOVE  "COVERAGE<IXGS722      KAISI-MSG-RTN            7   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE  CNS-PROGID           TO  PGM-ID
+                                      OF  PARM-SCZC7010-INOUT
+           CALL  SCZC7010             USING  PARM-SCZC7010-INOUT
+           CONTINUE.
+       KAISI-MSG-EXIT.
+           EXIT.
+      ******************************************************************
+      *    バッチ終了メッセージ出力
+      ******************************************************************
+       SYURYOU-MSG-RTN        SECTION.
+      D    MOVE  "COVERAGE<IXGS722      SYURYOU-MSG-RTN          8   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE  CNS-PROGID           TO  PGM-ID
+                                      OF  PARM-SCZK7020-INOUT
+           MOVE  PARM-SCZC1170-RTNPKG
+                                      TO  PARM-SCZK7020-RTNPKG
+           CALL  SCZK7020             USING  PARM-SCZK7020-INOUT
+                                             PARM-SCZK7020-RTNPKG
+           CONTINUE.
+       SYURYOU-MSG-EXIT.
+           EXIT.
+      ******************************************************************
+      *    スケ管追付き初期化
+      ******************************************************************
+       AUTO-INIT-RTN          SECTION.
+      D    MOVE  "COVERAGE<IXGS722      AUTO-INIT-RTN            9   0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           INITIALIZE    PARM-SCZC7010-INOUT
+                         PARM-SCZK7020-INOUT
+                         PARM-SCZK7020-RTNPKG
+      *    -------  "==> バッチ開始メッセージ出力 <=="
+           PERFORM  KAISI-MSG-RTN
+           CONTINUE.
+       AUTO-INIT-EXIT.
+           EXIT.
+      ******************************************************************
+      *    機能：正常終了処理
+      ******************************************************************
+       END-RTN                SECTION.
+      D    MOVE  "COVERAGE<IXGS722      END-RTN                  10  0>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+      *----------    リターンパッケージセット
+           MOVE  CNS-RTN-NORMAL       TO  RTN-CD
+                                      OF  PARM-SCZC1170-INOUT
+           CALL  SCZC1170             USING  PARM-SCZC1170-INOUT
+                                             PARM-SCZC1170-RTNPKG
+           MOVE  CNS-SYUBETU-NORMAL   TO  ERR-SYUBETU
+                                      OF  PARM-SCZK7020-INOUT
+           PERFORM  SYURYOU-MSG-RTN
+           CONTINUE.
+       END-EXIT.
+           EXIT.
+      ******************************************************************
+      *    スケ管追付きエラー処理
+      ******************************************************************
+       ERROR-RTN              SECTION.
+      D    MOVE  "COVERAGE<IXGS722      ERROR-RTN                11  1>"
+      D                               TO  LOG-CONTENT
+      D    CALL  DBGSYRKS             USING  DBGSYRKS-ARG
+           MOVE  CNS-PROGID           TO  ERR-PGM-ID
+                                      OF  PARM-SCZC1170-INOUT
+           MOVE  CNS-RTN-ERROR        TO  RTN-CD
+                                      OF  PARM-SCZC1170-INOUT
+           MOVE  ZERO                 TO  DETAIL-RTN-CD
+                                      OF  PARM-SCZC1170-INOUT
+           MOVE  CNS-DETAIL-FLG-0     TO  DETAIL-RTN-CD-FLG
+                                      OF  PARM-SCZC1170-INOUT
+           CALL  SCZC1170             USING  PARM-SCZC1170-INOUT
+                                             PARM-SCZC1170-RTNPKG
+           MOVE  CNS-SYUBETU-ERROR    TO  ERR-SYUBETU
+                                      OF  PARM-SCZK7020-INOUT
+           PERFORM  SYURYOU-MSG-RTN
+           CONTINUE.
+       ERROR-EXIT.
+           STOP RUN 16.
